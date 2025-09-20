@@ -1,0 +1,528 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Перемешивалка слов</title>
+<style>
+  :root{
+    --bg:#0b1020;
+    --card-bg: rgba(255,255,255,0.06);
+    --accent:#7ee787;
+    --muted:rgba(255,255,255,0.6);
+    font-family: Inter, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  }
+  html,body{height:100%;margin:0;background:var(--bg);color:#e8eef8;overflow:hidden}
+  canvas#bg{position:fixed;inset:0;z-index:0;display:block;filter:blur(8px) saturate(120%);transform:scale(1.05)}
+  .app{position:relative;z-index:2;display:flex;gap:18px;padding:28px;align-items:flex-start;height:100vh;box-sizing:border-box;}
+  .left{width:420px;min-width:320px;background:linear-gradient(180deg, rgba(0, 0, 0, 0.35), rgba(0,0,0,0.45));border-radius:14px;padding:18px;backdrop-filter: blur(6px); box-shadow: 0 6px 30px rgba(0,0,0,0.6);border:1px solid rgba(255,255,255,0.04);}
+  h1{margin:0 0 8px 0;font-size:20px;letter-spacing:0.2px}
+  .modes{display:flex;gap:8px;margin-bottom:12px}
+  .mode{flex:1;padding:8px 10px;border-radius:8px;text-align:center;cursor:pointer;border:1px solid transparent}
+  .mode.selected{background:linear-gradient(90deg,#ffffff10,#ffffff05);border-color:rgba(255,255,255,0.06)}
+  .mode-title{font-weight: 700; font-size: 16px; margin-bottom: 2px;}
+  .mode-desc{font-size: 13px; color: var(--muted); line-height: 1.3;}
+  .controls{display:flex;gap:8px;margin-bottom:12px;align-items:center}
+  input[type=text]{flex:1;padding:10px;border-radius:8px;border:1px solid rgba(255,255,255,0.06);background:transparent;color:inherit;outline:none}
+  .small{font-size:13px;color:var(--muted)}
+  button{padding:10px 14px;border-radius:10px;border:0;background:linear-gradient(180deg,var(--accent), #3dd57b);color:#04220a;font-weight:700;cursor:pointer;box-shadow:0 6px 18px rgba(0,0,0,0.4);}
+  button.ghost{background:transparent;border:1px solid rgba(255,255,255,0.06);color:var(--muted);font-weight:600}
+  .status-card{margin-top:12px;padding:10px;border-radius:10px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.03)}
+  .display-area{flex:1;min-width:480px;align-self:stretch;display:flex;flex-direction:column;background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.015));border-radius:14px;padding:18px;border:1px solid rgba(255,255,255,0.03);}
+  .board{flex:1;overflow:auto;padding:6px;border-radius:10px;background:linear-gradient(180deg, rgba(0,0,0,0.36), transparent)}
+  .attempt-line{font-family:monospace;padding:6px 8px;border-radius:6px;margin-bottom:6px;background:rgba(255,255,255,0.02);display:flex;align-items:center;gap:12px;justify-content:space-between}
+  .attempt-left{display:flex;gap:10px;align-items:center}
+  .attempt-num{color:var(--muted);min-width:60px;text-align:right}
+  .attempt-str{font-weight:700;letter-spacing:0.6px}
+  .marker-line{font-family:monospace;color:#baf3c6;margin-top:4px}
+  .letter.fixed{color: #0b2712;background:linear-gradient(180deg,#baf3c6,#7ee787);padding:2px 6px;border-radius:4px}
+  .letter.unfixed{opacity:0.85;padding:2px 6px}
+  .top-right {position: fixed; right: 20px; top: 20px; z-index: 3; background-color: rgba(0,0,0,0.35) !important; border: 1px solid rgba(255,255,255,0.08); border-radius: 12px; padding: 12px; box-shadow: 0 6px 20px rgba(0,0,0,0.5); display: flex; flex-direction: column; align-items: center;}
+  .palette-row{display:flex;gap:8px;align-items:center}
+  .palette-btn{width:40px;height:28px;border-radius:8px;border:1px solid rgba(255,255,255,0.06);cursor:pointer;box-shadow:0 6px 18px rgba(0,0,0,0.25);outline:none}
+  .palette-btn.active{transform:scale(1.06);box-shadow:0 10px 26px rgba(0,0,0,0.4)}
+  .palette-label{font-size:12px;color:var(--muted);margin-bottom:6px}
+  footer{font-size:12px;color:var(--muted);margin-top:8px;text-align:center}
+  @media (max-width:900px){.app{flex-direction:column;padding:14px;align-items:stretch}.left{width:100%}.display-area{min-width:unset}}
+</style>
+</head>
+<body>
+<canvas id="bg"></canvas>
+
+<div class="top-right" style="background:var(--card-bg);border:1px solid rgba(255,255,255,0.03);">
+  <div style="display:flex;gap:8px;align-items:center;margin-bottom:6px">
+    <div class="small" style="font-weight:700">Фон — палитры</div>
+  </div>
+  <div class="palette-row" id="paletteRow">
+  </div>
+</div>
+
+<div class="app">
+  <div class="left">
+    <h1>Игровая перемешивалка</h1>
+    <div class="modes" role="tablist" aria-label="modes">
+      <div class="mode selected" data-mode="1">
+        <div class="mode-title">Тупой</div>
+        <div class="mode-desc">Перемешиваем всю строку случайно</div>
+      </div>
+      <div class="mode" data-mode="2">
+        <div class="mode-title">Средний</div>
+        <div class="mode-desc">Фиксируем буквы по порядку ↑</div>
+      </div>
+      <div class="mode" data-mode="3">
+        <div class="mode-title">Умный</div>
+        <div class="mode-desc">Оставляет все символы, которые встали на место ✓</div>
+      </div>
+    </div>
+
+    <div class="controls">
+      <input id="inputWord" type="text" placeholder="Введите слово или фразу..." value="стандартно" />
+      <button id="startBtn">Старт</button>
+    </div>
+
+    <div class="row" style="margin-top:8px;display:flex;gap:8px;align-items:center">
+      <div class="small">Показывать каждую N-ю попытку:</div>
+      <input id="showEvery" type="number" min="1" value="1" style="width:70px;padding:6px;border-radius:6px;border:1px solid rgba(255,255,255,0.04);background:transparent;color:inherit" />
+    </div>
+
+    <div class="status-card">
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <div>
+          <div class="small">Попытки</div>
+          <div id="attemptCounter" style="font-family:monospace;background:rgba(0,0,0,0.14);padding:6px;border-radius:6px">0</div>
+        </div>
+        <div>
+          <div class="small">Время</div>
+          <div id="timer" style="font-family:monospace;background:rgba(0,0,0,0.14);padding:6px;border-radius:6px">00:00:00.000</div>
+        </div>
+      </div>
+
+      <div class="info" style="margin-top:10px">
+        <div>Нажми <strong>Старт</strong>. Можно остановить (Stop) и вернуться в меню, менять слово во время паузы.</div>
+        <div style="margin-top:6px;color:var(--muted)">Лучше тестить короткие слова; тупой поиск для малых n.</div>
+      </div>
+
+      <div style="display:flex;gap:8px;align-items:center;margin-top:10px">
+        <button id="stopBtn" class="ghost">Stop</button>
+        <button id="clearLog" class="ghost">Очистить лог</button>
+        <button id="menuBtn" class="ghost">Info</button>
+      </div>
+    </div>
+
+    <footer>Сделано для медитации и убийства Васи Будкина 😹</footer>
+  </div>
+
+  <div class="display-area">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+      <div style="font-weight:700; text-shadow: 2px 2px 6px rgba(0, 0, 0, 0.7);">Лог попыток</div>
+      <!-- <div class="small">Подсказка: в средних/умных режимах над буквами ↑ — закреплённые позиции</div> -->
+    </div>
+
+    <div class="board" id="board"></div>
+
+    <div style="display:flex;gap:8px;margin-top:8px;align-items:center">
+      <input id="autoPlayNext" type="checkbox" /> <label class="small" for="autoPlayNext">Авто: оставаться в том же режиме после успеха</label>
+    </div>
+  </div>
+</div>
+
+<script>
+  // ===== PALLITES ===== //
+const PALETTES = [
+  {name: 'Жёлто-синий (default)', stops: ['#ffef7a','#ffd166','#00b4d8']}, // warm -> blue
+  {name: 'Сине-фиолетовая', stops: ['#3a0ca3','#7209b7','#560bad']},
+  {name: 'Красно-оранжевая', stops: ['#ff5400','#ff6b6b','#ffbd00']},
+  {name: 'Зелено-жёлтая', stops: ['#00a676','#7ee787','#eaff00']},
+  {name: 'Бирюзово-синяя', stops: ['#00f5d4','#00c2ff','#0096ff']},
+  {name: 'Розово-пурпурная', stops: ['#ff0a54','#ff6b6b','#9b5de5']}
+];
+
+/* ===== Utils for colors ===== */
+function hexToRgb(hex){
+  const h = hex.replace('#','');
+  return [parseInt(h.substring(0,2),16), parseInt(h.substring(2,4),16), parseInt(h.substring(4,6),16)];
+}
+function lerp(a,b,t){ return a + (b-a)*t; }
+function lerpColor(c1,c2,t){
+  return [ Math.round(lerp(c1[0],c2[0],t)), Math.round(lerp(c1[1],c2[1],t)), Math.round(lerp(c1[2],c2[2],t)) ];
+}
+
+/* ===== Background animation (plasma-ish) with palette transition ===== */
+(() => {
+  const canvas = document.getElementById('bg');
+  const ctx = canvas.getContext('2d');
+  let w = canvas.width = innerWidth;
+  let h = canvas.height = innerHeight;
+  const scale = 0.55; // keep low for perf
+  const off = document.createElement('canvas');
+  let offW = Math.max(200, Math.floor(w*scale));
+  let offH = Math.max(200, Math.floor(h*scale));
+  off.width = offW; off.height = offH;
+  const offCtx = off.getContext('2d');
+
+  let t0 = 0;
+
+  // palette state
+  let currentStops = PALETTES[0].stops.map(hexToRgb); // array of rgb
+  let targetStops = currentStops.map(c=>c.slice());
+  let paletteLerp = 1; // 1 = at target; 0..1 animating
+
+  function setPalette(idx){
+    targetStops = PALETTES[idx].stops.map(hexToRgb);
+    paletteLerp = 0;
+  }
+
+  // expose setter to UI
+  window._setBgPalette = setPalette;
+
+  function resize(){
+    w = canvas.width = innerWidth;
+    h = canvas.height = innerHeight;
+  }
+  addEventListener('resize', ()=>{
+    resize();
+    offW = Math.max(200, Math.floor(innerWidth*scale));
+    offH = Math.max(200, Math.floor(innerHeight*scale));
+    off.width = offW; off.height = offH;
+  });
+
+  function mapVVtoColor(vv){
+    // vv in [0..1], use 3 stops: 0..0.5 => stop0..stop1, 0.5..1 => stop1..stop2
+    let color;
+    if(vv < 0.5){
+      const t = vv / 0.5;
+      color = lerpColor(currentStops[0], currentStops[1], t);
+    } else {
+      const t = (vv - 0.5) / 0.5;
+      color = lerpColor(currentStops[1], currentStops[2], t);
+    }
+    return color;
+  }
+
+  function drawFrame(){
+    t0 += 0.0135;
+    const ow = off.width, oh = off.height;
+    const id = offCtx.createImageData(ow, oh);
+    const d = id.data;
+    let ptr = 0;
+    for(let y=0;y<oh;y++){
+      for(let x=0;x<ow;x++){
+        const nx = x/ow, ny = y/oh;
+        const v = Math.sin((nx*9 + t0) + Math.sin((ny*7)+t0*0.95))
+                + Math.sin((ny*11 - t0*0.8) + Math.cos((nx*6)+t0*1.2))
+                + Math.sin(Math.hypot(nx-0.5, ny-0.5)*11 - t0*1.1);
+        const vv = Math.max(0, Math.min(1, (v + 3) / 6 ));
+        const col = mapVVtoColor(vv);
+        d[ptr++] = col[0];
+        d[ptr++] = col[1];
+        d[ptr++] = col[2];
+        d[ptr++] = 255;
+      }
+    }
+    offCtx.putImageData(id,0,0);
+    ctx.clearRect(0,0,w,h);
+    ctx.globalAlpha = 0.92;
+    ctx.drawImage(off, 0, 0, w, h);
+
+    // animate palette transition if needed
+    if(paletteLerp < 1){
+      paletteLerp = Math.min(1, paletteLerp + 0.025); // speed
+      for(let i=0;i<3;i++){
+        currentStops[i] = lerpColor(currentStops[i], targetStops[i], paletteLerp);
+      }
+    } else {
+      // ensure current equals target exactly
+      currentStops = targetStops.map(c=>c.slice());
+    }
+
+    requestAnimationFrame(drawFrame);
+  }
+
+  requestAnimationFrame(drawFrame);
+})();
+
+/* ===== Build palette UI and wire it ===== */
+(function wirePalettes(){
+  const paletteRow = document.getElementById('paletteRow');
+  PALETTES.forEach((p, idx) => {
+    const btn = document.createElement('button');
+    btn.className = 'palette-btn';
+    btn.title = p.name;
+    // set background gradient preview
+    btn.style.background = `linear-gradient(90deg, ${p.stops.join(',')})`;
+    if(idx === 0) btn.classList.add('active');
+    btn.addEventListener('click', ()=>{
+      // mark active visually
+      document.querySelectorAll('.palette-btn').forEach(b=>b.classList.remove('active'));
+      btn.classList.add('active');
+      // set palette in bg animator
+      if(window._setBgPalette) window._setBgPalette(idx);
+    });
+    paletteRow.appendChild(btn);
+  });
+})();
+
+/* ======= The game & worker code (same as before) ======= */
+
+/* ... For brevity we include the same Worker + UI orchestration as before ...
+   (full worker and UI logic included below so page is self-contained) */
+
+const modes = document.querySelectorAll('.mode');
+let selectedMode = 1;
+modes.forEach(el=>{
+  el.addEventListener('click', ()=> {
+    modes.forEach(m=>m.classList.remove('selected'));
+    el.classList.add('selected');
+    selectedMode = Number(el.dataset.mode);
+  });
+});
+
+// DOM refs
+const inputWord = document.getElementById('inputWord');
+const startBtn = document.getElementById('startBtn');
+const stopBtn = document.getElementById('stopBtn');
+const showEveryInput = document.getElementById('showEvery');
+const attemptCounterEl = document.getElementById('attemptCounter');
+const timerEl = document.getElementById('timer');
+const board = document.getElementById('board');
+const clearLogBtn = document.getElementById('clearLog');
+const menuBtn = document.getElementById('menuBtn');
+const autoPlayNext = document.getElementById('autoPlayNext');
+
+let worker = null;
+let running = false;
+
+function makeWorkerBlobURL(){
+  const src = `
+  let stopNow = false;
+  onmessage = function(e){
+    const d = e.data;
+    if(d.cmd === 'stop'){ stopNow = true; return; }
+    if(d.cmd === 'start'){
+      stopNow = false;
+      const mode = d.mode;
+      const target = Array.from(d.target);
+      const showEvery = Math.max(1, d.showEvery|0);
+      const startTs = performance.now();
+      function shuffleArray(arr){
+        for(let i=arr.length-1;i>0;i--){
+          const j = Math.floor(Math.random()*(i+1));
+          [arr[i],arr[j]] = [arr[j],arr[i]];
+        }
+      }
+      function postUpdate(attempts, chars, fixed){
+        postMessage({type:'update', attempts, current: chars.join(''), fixed});
+      }
+      if(mode === 1){
+        let chars = Array.from(target);
+        shuffleArray(chars);
+        let attempts = 0;
+        while(chars.join('') !== target.join('')){
+          if(stopNow) { postMessage({type:'stopped'}); return; }
+          attempts++;
+          shuffleArray(chars);
+          if(attempts % showEvery === 0) postUpdate(attempts, chars, null);
+        }
+        const elapsed = performance.now() - startTs;
+        postMessage({type:'done', attempts, elapsed, current: chars.join(''), fixed: Array.from({length:chars.length},(_,i)=>true)});
+        return;
+      } else if(mode === 2){
+        let chars = Array.from(target);
+        shuffleArray(chars);
+        const n = chars.length;
+        let fixed = Array.from({length:n}, (_,i)=>chars[i]===target[i]);
+        let attempts = 0;
+        for(let i=0;i<n;i++){
+          while(chars[i] !== target[i]){
+            if(stopNow) { postMessage({type:'stopped'}); return; }
+            attempts++;
+            const suffix = chars.slice(i);
+            shuffleArray(suffix);
+            for(let k=0;k<suffix.length;k++) chars[i+k] = suffix[k];
+            fixed = chars.map((c,idx)=> c === target[idx]);
+            if(attempts % showEvery === 0) postUpdate(attempts, chars, fixed);
+          }
+          fixed[i] = true;
+        }
+        const elapsed = performance.now() - startTs;
+        postMessage({type:'done', attempts, elapsed, current: chars.join(''), fixed});
+        return;
+      } else if(mode === 3){
+        let chars = Array.from(target);
+        shuffleArray(chars);
+        const n = chars.length;
+        let fixed = Array.from({length:n}, (_,i)=>chars[i]===target[i]);
+        let attempts = 0;
+        if(fixed.every(Boolean)){
+          const elapsed=performance.now()-startTs;
+          postMessage({type:'done',attempts,elapsed,current:chars.join(''),fixed});
+          return;
+        }
+        while(!fixed.every(Boolean)){
+          if(stopNow) { postMessage({type:'stopped'}); return; }
+          attempts++;
+          const unfixed = [];
+          const indices = [];
+          for(let i=0;i<n;i++) if(!fixed[i]) { unfixed.push(chars[i]); indices.push(i); }
+          shuffleArray(unfixed);
+          for(let k=0;k<indices.length;k++) chars[indices[k]] = unfixed[k];
+          for(let i=0;i<n;i++) if(!fixed[i] && chars[i] === target[i]) fixed[i] = true;
+          if(attempts % showEvery === 0) postUpdate(attempts, chars, fixed);
+        }
+        const elapsed = performance.now() - startTs;
+        postMessage({type:'done', attempts, elapsed, current: chars.join(''), fixed});
+        return;
+      } else {
+        postMessage({type:'error', message:'unknown mode'});
+      }
+    }
+  };
+  `;
+  const blob = new Blob([src], {type:'application/javascript'});
+  return URL.createObjectURL(blob);
+}
+
+function startWorker(mode, target, showEvery){
+  if(worker) { worker.terminate(); worker = null; }
+  const url = makeWorkerBlobURL();
+  worker = new Worker(url);
+  URL.revokeObjectURL(url);
+  running = true;
+  attemptCounterEl.textContent = '0';
+  timerEl.textContent = '00:00:00.000';
+  board.innerHTML = '';
+
+  let startTs = performance.now();
+  worker.onmessage = function(e){
+    const d = e.data;
+    if(d.type === 'update'){
+      attemptCounterEl.textContent = d.attempts.toLocaleString();
+      const el = makeAttemptElement(d.attempts, d.current, d.fixed);
+      board.prepend(el);
+      while(board.childElementCount > 150) board.removeChild(board.lastChild);
+      const elapsedMs = performance.now() - startTs;
+      timerEl.textContent = formatElapsed(elapsedMs);
+    } else if(d.type === 'done'){
+      running = false;
+      attemptCounterEl.textContent = d.attempts.toLocaleString();
+      timerEl.textContent = formatElapsed(performance.now() - startTs);
+      const el = makeAttemptElement(d.attempts, d.current, d.fixed, true);
+      board.prepend(el);
+      worker.terminate();
+      worker = null;
+    } else if(d.type === 'stopped'){
+      running = false;
+      timerEl.textContent = 'stopped';
+      try{ worker.terminate(); }catch(e){}
+      worker = null;
+    } else if(d.type === 'error'){
+      alert('Worker error: '+(d.message || 'unknown'));
+      running=false;
+      try{ worker.terminate(); }catch(e){}
+      worker=null;
+    }
+  };
+
+  worker.postMessage({cmd:'start', mode, target, showEvery});
+  const timerInterval = setInterval(()=>{
+    if(!running){ clearInterval(timerInterval); return; }
+    const elapsedMs = performance.now() - startTs;
+    timerEl.textContent = formatElapsed(elapsedMs);
+  }, 200);
+}
+
+function stopWorker(){
+  if(worker){
+    worker.postMessage({cmd:'stop'});
+    try{ worker.terminate(); }catch(e){}
+    worker = null;
+  }
+  running = false;
+}
+
+function formatElapsed(ms){
+  const s = ms/1000;
+  const hours = Math.floor(s/3600);
+  const minutes = Math.floor((s%3600)/60);
+  const seconds = (s%60).toFixed(3).padStart(6,'0');
+  return `${String(hours).padStart(2,'0')}:${String(minutes).padStart(2,'0')}:${seconds}`;
+}
+
+function makeAttemptElement(attempts, current, fixed, done=false){
+  const wrap = document.createElement('div');
+  wrap.className = 'attempt-line';
+  const left = document.createElement('div');
+  left.className = 'attempt-left';
+  const num = document.createElement('div');
+  num.className = 'attempt-num';
+  num.textContent = attempts.toLocaleString();
+  const str = document.createElement('div');
+  str.className = 'attempt-str';
+
+  const chars = Array.from(current);
+  for(let i=0;i<chars.length;i++){
+    const sp = document.createElement('span');
+    sp.textContent = chars[i];
+    sp.className = fixed && fixed[i] ? 'letter fixed' : 'letter unfixed';
+    str.appendChild(sp);
+  }
+
+  left.appendChild(num);
+  left.appendChild(str);
+
+  const right = document.createElement('div');
+  right.style.textAlign = 'right';
+  right.style.fontSize = '12px';
+  right.style.color = 'var(--muted)';
+  right.textContent = done ? 'FOUND ✓' : '';
+
+  wrap.appendChild(left);
+  wrap.appendChild(right);
+
+  if(fixed && Array.isArray(fixed)){
+    const marker = document.createElement('div');
+    marker.className = 'marker-line';
+    const parts = fixed.map(f=> f ? '↑' : '·');
+    marker.textContent = ' ' + parts.join(' ');
+    wrap.appendChild(marker);
+  }
+
+  return wrap;
+}
+
+// wire buttons
+startBtn.addEventListener('click', ()=>{
+  if(running){
+    stopWorker();
+  } else {
+    const word = inputWord.value || '';
+    if(word.length === 0){ alert('Введите слово или фразу.'); return; }
+    const showEvery = Math.max(1, Number(showEveryInput.value) || 1);
+    const wordLength = Array.from(word).length;
+    if(selectedMode === 1 && wordLength > 12){
+      if(!confirm('Длина строки > 12 - поиск может работать ОЧЕНЬ долго. Продолжить?')) return;
+    }
+    startWorker(selectedMode, word, showEvery);
+  }
+});
+stopBtn.addEventListener('click', ()=> { stopWorker(); });
+clearLogBtn.addEventListener('click', ()=> { board.innerHTML = ''; });
+menuBtn.addEventListener('click', ()=> {
+  alert('Меню: выбери режим слева. Можно менять слово и нажать Старт.\nПодсказка: Режим УМНЫЙ обычно быстрее.');
+});
+
+// keyboard shortcuts
+document.addEventListener('keydown', (ev)=>{
+  if(ev.key === 'Enter' && document.activeElement === inputWord){
+    startBtn.click();
+  } else if(ev.key === 'm'){
+    menuBtn.click();
+  } else if(ev.key === 's'){
+    stopBtn.click();
+  }
+});
+
+addEventListener('beforeunload', ()=> stopWorker());
+</script>
+</body>
+</html>
