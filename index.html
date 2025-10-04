@@ -190,7 +190,7 @@
             <p style="font-size: 1.5em; margin-top: 20px;">Лютя ^^</p>
         </div>
         
-        <button class="paw-button" onclick="showLovePage()">🐾Тыкни лапкой🐾</button>
+        <button class="paw-button" onclick="showLovePage()">🐾 Тыкни лапкой 🐾</button>
     </div>
     
     <div class="container page-2">
@@ -201,18 +201,32 @@
     </div>
     
     <script>
-        // Автозапуск музыки при загрузке страницы
-        window.addEventListener('DOMContentLoaded', (event) => {
-            const music = document.getElementById('bgMusic');
-            music.play().catch(function(error) {
-                // Если браузер блокирует автозапуск, попробуем при первом клике
-                document.body.addEventListener('click', function() {
-                    music.play();
-                }, { once: true });
-            });
+        // Автозапуск музыки для мобильных и десктопа
+        const music = document.getElementById('bgMusic');
+        let musicStarted = false;
+        
+        // Функция запуска музыки
+        function startMusic() {
+            if (!musicStarted) {
+                music.play().then(() => {
+                    musicStarted = true;
+                }).catch(() => {
+                    // Тихо игнорируем ошибку, попробуем снова при следующем взаимодействии
+                });
+            }
+        }
+        
+        // Пробуем запустить сразу
+        window.addEventListener('DOMContentLoaded', startMusic);
+        
+        // Запускаем при любом взаимодействии пользователя (для мобильных браузеров)
+        const events = ['click', 'touchstart', 'touchend', 'scroll', 'keydown'];
+        events.forEach(event => {
+            document.addEventListener(event, startMusic, { once: true, passive: true });
         });
         
         function showLovePage() {
+            startMusic(); // Запускаем музыку при переходе на вторую страницу
             document.querySelector('.page-1').style.display = 'none';
             document.querySelector('.page-2').style.display = 'block';
         }
