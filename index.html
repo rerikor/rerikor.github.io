@@ -5,27 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Для тебя ♡</title>
     <style>
-        .music-control {
-            position: fixed;
-            bottom: 30px;
-            right: 30px;
-            background: linear-gradient(135deg, #d4bfd4 0%, #c8adc8 100%);
-            color: white;
-            border: none;
-            padding: 15px 25px;
-            border-radius: 50px;
-            cursor: pointer;
-            font-size: 1.2em;
-            box-shadow: 0 10px 30px rgba(200, 173, 200, 0.3);
-            transition: all 0.3s ease;
-            z-index: 1000;
-        }
-        
-        .music-control:hover {
-            transform: scale(1.1);
-        }
-    </style>
-    <style>
         * {
             margin: 0;
             padding: 0;
@@ -189,19 +168,16 @@
 </head>
 <body>
     <!-- Фоновая музыка -->
-    <audio id="bgMusic" loop>
+    <audio id="bgMusic" loop autoplay>
         <source src="music.mp3" type="audio/mpeg">
     </audio>
     
-    <!-- Кнопка управления музыкой -->
-    <button class="music-control" onclick="toggleMusic()" id="musicBtn">🎵 Музыка</button>
-    
     <div class="container page-1">
         <div class="image-grid">
-            <img src="photo1.png" style="width:100%; height:150px; object-fit:cover; border-radius:20px; transition: transform 0.3s ease;" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
-            <img src="photo2.png" style="width:100%; height:150px; object-fit:cover; border-radius:20px; transition: transform 0.3s ease;" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
-            <img src="photo3.png" style="width:100%; height:150px; object-fit:cover; border-radius:20px; transition: transform 0.3s ease;" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
-            <img src="photo4.png" style="width:100%; height:150px; object-fit:cover; border-radius:20px; transition: transform 0.3s ease;" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
+            <img src="photo1.jpg" style="width:100%; height:auto; aspect-ratio: 1/1; object-fit:contain; border-radius:20px; transition: transform 0.3s ease; background: #f9f9f9;" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
+            <img src="photo2.jpg" style="width:100%; height:auto; aspect-ratio: 1/1; object-fit:contain; border-radius:20px; transition: transform 0.3s ease; background: #f9f9f9;" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
+            <img src="photo3.jpg" style="width:100%; height:auto; aspect-ratio: 1/1; object-fit:contain; border-radius:20px; transition: transform 0.3s ease; background: #f9f9f9;" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
+            <img src="photo4.jpg" style="width:100%; height:auto; aspect-ratio: 1/1; object-fit:contain; border-radius:20px; transition: transform 0.3s ease; background: #f9f9f9;" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
         </div>
         
         <div class="message">
@@ -219,27 +195,22 @@
     
     <div class="container page-2">
         <div class="hearts">💗 💕 💖 💝 💗</div>
-        <div class="love-message">Люблю тебя!!! :3</div>
+        <div class="love-message">Люблю тебя!!!</div>
         <div class="hearts">💖 💝 💗 💕 💖</div>
         <button class="back-button" onclick="showMainPage()">← Назад</button>
     </div>
     
     <script>
-        let musicPlaying = false;
-        const music = document.getElementById('bgMusic');
-        const musicBtn = document.getElementById('musicBtn');
-        
-        function toggleMusic() {
-            if (musicPlaying) {
-                music.pause();
-                musicBtn.textContent = '🎵 Музыка';
-                musicPlaying = false;
-            } else {
-                music.play();
-                musicBtn.textContent = '⏸️ Пауза';
-                musicPlaying = true;
-            }
-        }
+        // Автозапуск музыки при загрузке страницы
+        window.addEventListener('DOMContentLoaded', (event) => {
+            const music = document.getElementById('bgMusic');
+            music.play().catch(function(error) {
+                // Если браузер блокирует автозапуск, попробуем при первом клике
+                document.body.addEventListener('click', function() {
+                    music.play();
+                }, { once: true });
+            });
+        });
         
         function showLovePage() {
             document.querySelector('.page-1').style.display = 'none';
