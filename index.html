@@ -31,8 +31,37 @@
             text-align: center;
         }
         
-        .page-2 {
+        .page-1, .page-2 {
             display: none;
+        }
+        
+        .welcome-screen {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .meow-button {
+            background: linear-gradient(135deg, #d4bfd4 0%, #c8adc8 100%);
+            color: white;
+            border: none;
+            padding: 25px 60px;
+            font-size: 2em;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 10px 30px rgba(200, 173, 200, 0.3);
+            font-weight: 600;
+        }
+        
+        .meow-button:hover {
+            transform: translateY(-5px) scale(1.05);
+            box-shadow: 0 15px 40px rgba(200, 173, 200, 0.5);
+        }
+        
+        .meow-button:active {
+            transform: translateY(-2px) scale(1.02);
         }
         
         .image-grid {
@@ -168,9 +197,14 @@
 </head>
 <body>
     <!-- Фоновая музыка -->
-    <audio id="bgMusic" loop autoplay>
+    <audio id="bgMusic" loop>
         <source src="music.mp3" type="audio/mpeg">
     </audio>
+    
+    <!-- Приветственный экран -->
+    <div class="container welcome-screen">
+        <button class="meow-button" onclick="startSite()">мяу :3</button>
+    </div>
     
     <div class="container page-1">
         <div class="image-grid">
@@ -201,32 +235,16 @@
     </div>
     
     <script>
-        // Автозапуск музыки для мобильных и десктопа
         const music = document.getElementById('bgMusic');
-        let musicStarted = false;
         
-        // Функция запуска музыки
-        function startMusic() {
-            if (!musicStarted) {
-                music.play().then(() => {
-                    musicStarted = true;
-                }).catch(() => {
-                    // Тихо игнорируем ошибку, попробуем снова при следующем взаимодействии
-                });
-            }
+        // Запуск сайта и музыки
+        function startSite() {
+            music.play();
+            document.querySelector('.welcome-screen').style.display = 'none';
+            document.querySelector('.page-1').style.display = 'block';
         }
         
-        // Пробуем запустить сразу
-        window.addEventListener('DOMContentLoaded', startMusic);
-        
-        // Запускаем при любом взаимодействии пользователя (для мобильных браузеров)
-        const events = ['click', 'touchstart', 'touchend', 'scroll', 'keydown'];
-        events.forEach(event => {
-            document.addEventListener(event, startMusic, { once: true, passive: true });
-        });
-        
         function showLovePage() {
-            startMusic(); // Запускаем музыку при переходе на вторую страницу
             document.querySelector('.page-1').style.display = 'none';
             document.querySelector('.page-2').style.display = 'block';
         }
