@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Минимализм</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: radial-gradient(ellipse at center, #0d0d15 0%, #000000 100%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .firefly {
+            position: absolute;
+            width: 3px;
+            height: 3px;
+            background: #ffdb58;
+            border-radius: 50%;
+            box-shadow: 0 0 8px #ffdb58, 0 0 15px #ffdb58;
+            pointer-events: none;
+            transition: opacity 2s ease-in-out;
+        }
+
+        .text {
+            font-size: 8vw;
+            font-weight: 700;
+            color: #fff;
+            letter-spacing: 0.05em;
+            text-transform: lowercase;
+            position: relative;
+            z-index: 10;
+            background: linear-gradient(45deg, #ffffff, #e8e8e8, #ffffff);
+            background-size: 200% 200%;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: shimmer 4s ease-in-out infinite;
+            filter: drop-shadow(0 0 60px rgba(255, 255, 255, 0.8)) 
+                    drop-shadow(0 0 100px rgba(255, 255, 255, 0.5))
+                    drop-shadow(0 0 140px rgba(255, 255, 255, 0.3));
+        }
+
+        @keyframes shimmer {
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+        }
+    </style>
+</head>
+<body>
+    <div class="text">писька</div>
+    <script>
+        const text = document.querySelector('.text');
+        const fireflies = [];
+        
+        class Firefly {
+            constructor() {
+                this.el = document.createElement('div');
+                this.el.className = 'firefly';
+                document.body.appendChild(this.el);
+                
+                this.reset();
+                this.blinkSpeed = 0.5 + Math.random() * 1.5;
+                this.blinkPhase = Math.random() * Math.PI * 2;
+            }
+            
+            reset() {
+                const rect = text.getBoundingClientRect();
+                const centerX = rect.left + rect.width / 2;
+                const centerY = rect.top + rect.height / 2;
+                
+                const angle = Math.random() * Math.PI * 2;
+                const distance = 150 + Math.random() * 250;
+                
+                this.x = centerX + Math.cos(angle) * distance;
+                this.y = centerY + Math.sin(angle) * distance;
+                
+                this.targetAngle = Math.random() * Math.PI * 2;
+                this.orbitRadius = 80 + Math.random() * 150;
+                this.orbitSpeed = 0.3 + Math.random() * 0.5;
+                this.wobble = Math.random() * 0.5;
+            }
+            
+            update() {
+                const rect = text.getBoundingClientRect();
+                const centerX = rect.left + rect.width / 2;
+                const centerY = rect.top + rect.height / 2;
+                
+                this.targetAngle += this.orbitSpeed * 0.02;
+                
+                const targetX = centerX + Math.cos(this.targetAngle) * this.orbitRadius;
+                const targetY = centerY + Math.sin(this.targetAngle) * this.orbitRadius + Math.sin(this.targetAngle * 3) * 20 * this.wobble;
+                
+                this.x += (targetX - this.x) * 0.02;
+                this.y += (targetY - this.y) * 0.02;
+                
+                this.blinkPhase += this.blinkSpeed * 0.1;
+                const opacity = 0.3 + Math.sin(this.blinkPhase) * 0.7;
+                
+                this.el.style.left = this.x + 'px';
+                this.el.style.top = this.y + 'px';
+                this.el.style.opacity = opacity;
+            }
+        }
+        
+        for (let i = 0; i < 40; i++) {
+            fireflies.push(new Firefly());
+        }
+        
+        function animate() {
+            fireflies.forEach(f => f.update());
+            requestAnimationFrame(animate);
+        }
+        
+        animate();
+    </script>
+</body>
+</html>
