@@ -1,0 +1,1052 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Между оригинальностью и репликацией — Фёдор Житнухин</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400;1,700&family=IBM+Plex+Mono:wght@300;400;500&family=Crimson+Pro:ital,wght@0,300;0,400;0,600;1,300;1,400&display=swap" rel="stylesheet">
+
+<style>
+:root {
+  --bg: #0a0a0b;
+  --bg2: #111113;
+  --bg3: #16161a;
+  --surface: #1c1c21;
+  --border: #2a2a32;
+  --text-primary: #e8e6e1;
+  --text-secondary: #9b9891;
+  --text-muted: #5c5a56;
+  --accent: #c8a96e;
+  --accent2: #7b6ee0;
+  --accent-dim: rgba(200,169,110,0.12);
+  --accent2-dim: rgba(123,110,224,0.1);
+  --red: #e05555;
+  --red-dim: rgba(224,85,85,0.1);
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  background: var(--bg);
+  color: var(--text-primary);
+  font-family: 'Crimson Pro', Georgia, serif;
+  font-size: 20px;
+  line-height: 1.75;
+  overflow-x: hidden;
+  cursor: none;
+}
+
+/* CURSOR */
+.cursor {
+  position: fixed;
+  width: 8px; height: 8px;
+  background: var(--accent);
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 9999;
+  transform: translate(-50%, -50%);
+  transition: width .2s, height .2s, opacity .2s;
+  mix-blend-mode: difference;
+}
+.cursor-ring {
+  position: fixed;
+  width: 36px; height: 36px;
+  border: 1px solid rgba(200,169,110,0.4);
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 9998;
+  transform: translate(-50%, -50%);
+  transition: transform .12s ease, width .3s, height .3s, border-color .3s;
+}
+
+/* NOISE OVERLAY */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='1'/%3E%3C/svg%3E");
+  opacity: 0.025;
+  pointer-events: none;
+  z-index: 1000;
+}
+
+/* PROGRESS BAR */
+#progress {
+  position: fixed;
+  top: 0; left: 0;
+  height: 2px;
+  background: linear-gradient(90deg, var(--accent), var(--accent2));
+  width: 0%;
+  z-index: 2000;
+  transition: width .1s;
+}
+
+/* NAV */
+nav {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  z-index: 100;
+  padding: 1.5rem 3rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: linear-gradient(to bottom, rgba(10,10,11,0.95) 0%, transparent 100%);
+  backdrop-filter: blur(0px);
+}
+.nav-logo {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 0.2em;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  text-decoration: none;
+}
+.nav-links {
+  display: flex;
+  gap: 2.5rem;
+  list-style: none;
+}
+.nav-links a {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  text-decoration: none;
+  transition: color .3s;
+}
+.nav-links a:hover { color: var(--accent); }
+
+/* HERO */
+#hero {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 8rem 3rem 6rem;
+  max-width: 1100px;
+  margin: 0 auto;
+  position: relative;
+}
+.hero-eyebrow {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 0.25em;
+  color: var(--accent);
+  text-transform: uppercase;
+  margin-bottom: 2.5rem;
+  opacity: 0;
+  animation: fadeUp 1s ease 0.3s forwards;
+}
+.hero-title {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(2.8rem, 6vw, 5.5rem);
+  font-weight: 900;
+  line-height: 1.08;
+  letter-spacing: -0.02em;
+  color: var(--text-primary);
+  margin-bottom: 2rem;
+  opacity: 0;
+  animation: fadeUp 1.1s ease 0.5s forwards;
+}
+.hero-title em {
+  font-style: italic;
+  color: var(--accent);
+}
+.hero-subtitle {
+  font-size: 1.15rem;
+  color: var(--text-secondary);
+  max-width: 620px;
+  line-height: 1.7;
+  font-weight: 300;
+  opacity: 0;
+  animation: fadeUp 1.1s ease 0.7s forwards;
+  margin-bottom: 3.5rem;
+}
+.hero-meta {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 11px;
+  color: var(--text-muted);
+  letter-spacing: 0.1em;
+  opacity: 0;
+  animation: fadeUp 1.1s ease 0.9s forwards;
+  display: flex;
+  gap: 2rem;
+  flex-wrap: wrap;
+}
+.hero-meta span::before {
+  content: '— ';
+  color: var(--accent);
+}
+.hero-scroll {
+  position: absolute;
+  bottom: 3rem;
+  left: 3rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.2em;
+  color: var(--text-muted);
+  opacity: 0;
+  animation: fadeIn 1s ease 1.5s forwards;
+}
+.scroll-line {
+  width: 40px;
+  height: 1px;
+  background: var(--text-muted);
+  animation: scrollLine 2s ease infinite 2s;
+}
+@keyframes scrollLine {
+  0%, 100% { width: 40px; opacity: 1; }
+  50% { width: 70px; opacity: 0.5; }
+}
+
+/* SECTION BASE */
+section {
+  padding: 7rem 3rem;
+  max-width: 1100px;
+  margin: 0 auto;
+}
+.section-label {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: 1rem;
+  display: block;
+}
+h2 {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(1.8rem, 3.5vw, 2.8rem);
+  font-weight: 700;
+  line-height: 1.2;
+  color: var(--text-primary);
+  margin-bottom: 2.5rem;
+}
+h3 {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.4rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 1rem;
+  margin-top: 2.5rem;
+}
+p {
+  color: var(--text-secondary);
+  font-weight: 300;
+  margin-bottom: 1.4rem;
+  max-width: 700px;
+}
+p strong {
+  color: var(--text-primary);
+  font-weight: 600;
+}
+
+/* DIVIDER */
+.divider {
+  border: none;
+  border-top: 1px solid var(--border);
+  max-width: 1100px;
+  margin: 0 auto;
+}
+
+/* INTRO / PROBLEM */
+#intro {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6rem;
+  align-items: start;
+}
+.intro-left { }
+.intro-right {
+  padding-top: 5rem;
+}
+.pull-quote {
+  border-left: 2px solid var(--accent);
+  padding: 1.5rem 2rem;
+  margin: 2rem 0;
+  font-family: 'Playfair Display', serif;
+  font-size: 1.25rem;
+  font-style: italic;
+  color: var(--text-primary);
+  line-height: 1.5;
+  background: var(--accent-dim);
+}
+
+/* HYPOTHESIS */
+#hypothesis {
+  background: var(--bg2);
+  max-width: 100%;
+  padding: 6rem 3rem;
+}
+.hypothesis-inner {
+  max-width: 1100px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 4rem;
+}
+.hypo-card {
+  padding: 2.5rem;
+  border: 1px solid var(--border);
+  position: relative;
+  overflow: hidden;
+  transition: border-color .3s, transform .3s;
+}
+.hypo-card:hover {
+  border-color: var(--accent);
+  transform: translateY(-3px);
+}
+.hypo-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 2px;
+}
+.hypo-main::before { background: var(--accent); }
+.hypo-alt::before { background: var(--text-muted); }
+.hypo-tag {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  margin-bottom: 1rem;
+  display: block;
+}
+.hypo-card p { max-width: 100%; }
+
+/* CHAPTER 1 */
+.neuro-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1.5rem;
+  margin: 3rem 0;
+}
+.neuro-card {
+  padding: 2rem;
+  border: 1px solid var(--border);
+  background: var(--bg3);
+  transition: all .3s;
+  position: relative;
+  overflow: hidden;
+}
+.neuro-card:hover {
+  border-color: var(--accent2);
+  background: var(--bg2);
+}
+.neuro-card::after {
+  content: '';
+  position: absolute;
+  bottom: 0; left: 0;
+  height: 1px;
+  width: 0;
+  background: var(--accent2);
+  transition: width .4s;
+}
+.neuro-card:hover::after { width: 100%; }
+.neuro-icon {
+  font-size: 1.5rem;
+  margin-bottom: 1rem;
+  display: block;
+  color: var(--accent);
+  opacity: 0.7;
+}
+.neuro-card h4 {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  color: var(--accent2);
+  text-transform: uppercase;
+  margin-bottom: 0.75rem;
+}
+.neuro-card p {
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  line-height: 1.65;
+  max-width: 100%;
+}
+
+/* CHAPTER 2 / STATS */
+#stats {
+  background: var(--bg2);
+  max-width: 100%;
+  padding: 6rem 3rem;
+}
+.stats-inner {
+  max-width: 1100px;
+  margin: 0 auto;
+}
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 2rem;
+  margin: 3rem 0;
+}
+.stat-card {
+  padding: 2.5rem 2rem;
+  border: 1px solid var(--border);
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+  transition: all .35s;
+}
+.stat-card:hover {
+  border-color: var(--accent);
+  background: var(--accent-dim);
+}
+.stat-number {
+  font-family: 'Playfair Display', serif;
+  font-size: 3.5rem;
+  font-weight: 900;
+  color: var(--accent);
+  line-height: 1;
+  display: block;
+  margin-bottom: 0.5rem;
+}
+.stat-label {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 11px;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  line-height: 1.5;
+}
+.stat-desc {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  margin-top: 1rem;
+  line-height: 1.5;
+  max-width: 100%;
+}
+
+/* BAR CHART */
+.bar-chart {
+  margin: 3rem 0;
+}
+.bar-item {
+  display: grid;
+  grid-template-columns: 220px 1fr 60px;
+  align-items: center;
+  gap: 1.5rem;
+  margin-bottom: 1.25rem;
+}
+.bar-label {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 11px;
+  color: var(--text-secondary);
+  text-align: right;
+}
+.bar-track {
+  height: 6px;
+  background: var(--border);
+  border-radius: 3px;
+  overflow: hidden;
+}
+.bar-fill {
+  height: 100%;
+  border-radius: 3px;
+  background: var(--accent);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 1.2s cubic-bezier(.4,0,.2,1);
+}
+.bar-fill.animated { transform: scaleX(1); }
+.bar-pct {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--accent);
+}
+
+/* SELF-HANDICAPPING EXPLAINER */
+.mechanism-flow {
+  display: flex;
+  gap: 0;
+  margin: 3rem 0;
+  overflow-x: auto;
+}
+.flow-step {
+  flex: 1;
+  min-width: 160px;
+  padding: 1.5rem;
+  border: 1px solid var(--border);
+  border-right: none;
+  position: relative;
+  background: var(--bg3);
+  transition: background .3s;
+}
+.flow-step:last-child {
+  border-right: 1px solid var(--border);
+}
+.flow-step:hover { background: var(--bg2); }
+.flow-step::after {
+  content: '→';
+  position: absolute;
+  right: -14px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--accent);
+  font-size: 1rem;
+  z-index: 2;
+  background: var(--bg3);
+  padding: 0 4px;
+}
+.flow-step:last-child::after { display: none; }
+.flow-num {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 28px;
+  font-weight: 300;
+  color: var(--border);
+  line-height: 1;
+  margin-bottom: 0.75rem;
+}
+.flow-step h5 {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--accent);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  margin-bottom: 0.5rem;
+}
+.flow-step p {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  line-height: 1.5;
+  max-width: 100%;
+  margin: 0;
+}
+
+/* AUTOETHNOGRAPHY */
+#autoethno {
+  position: relative;
+}
+.autoethno-text {
+  max-width: 680px;
+  margin: 0 auto;
+}
+.long-quote {
+  margin: 3rem 0;
+  padding: 3rem;
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  position: relative;
+}
+.long-quote::before {
+  content: '"';
+  position: absolute;
+  top: -0.5rem;
+  left: 2rem;
+  font-family: 'Playfair Display', serif;
+  font-size: 5rem;
+  color: var(--accent);
+  line-height: 1;
+  opacity: 0.3;
+}
+.long-quote p {
+  font-family: 'Playfair Display', serif;
+  font-style: italic;
+  font-size: 1.1rem;
+  color: var(--text-primary);
+  line-height: 1.7;
+  max-width: 100%;
+  margin: 0;
+}
+
+/* CONCLUSION */
+#conclusion {
+  background: var(--bg2);
+  max-width: 100%;
+  padding: 7rem 3rem;
+}
+.conclusion-inner {
+  max-width: 1100px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 5rem;
+}
+.thesis-list {
+  list-style: none;
+  margin: 2rem 0;
+}
+.thesis-list li {
+  padding: 1.5rem 0;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  gap: 1.5rem;
+  align-items: start;
+  color: var(--text-secondary);
+  font-size: 1rem;
+}
+.thesis-list li:last-child { border-bottom: none; }
+.thesis-num {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 11px;
+  color: var(--accent);
+  padding-top: 0.35rem;
+  flex-shrink: 0;
+}
+.project-card {
+  padding: 2.5rem;
+  border: 1px solid var(--accent);
+  background: var(--accent-dim);
+}
+.project-card h4 {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.2em;
+  color: var(--accent);
+  margin-bottom: 1.5rem;
+}
+.project-card dl { }
+.project-card dt {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  color: var(--text-muted);
+  margin-top: 1.25rem;
+}
+.project-card dd {
+  color: var(--text-primary);
+  font-size: 0.9rem;
+  margin-top: 0.25rem;
+}
+
+/* FOOTER */
+footer {
+  border-top: 1px solid var(--border);
+  padding: 3rem;
+  max-width: 1100px;
+  margin: 0 auto;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+footer p {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 10px;
+  color: var(--text-muted);
+  letter-spacing: 0.1em;
+  max-width: 100%;
+  margin: 0;
+}
+
+/* REVEAL ANIMATION */
+.reveal {
+  opacity: 0;
+  transform: translateY(30px);
+  transition: opacity .9s ease, transform .9s ease;
+}
+.reveal.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(24px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+/* RESPONSIVE */
+@media (max-width: 900px) {
+  nav { padding: 1.5rem 1.5rem; }
+  nav .nav-links { display: none; }
+  #hero { padding: 8rem 1.5rem 5rem; }
+  section { padding: 5rem 1.5rem; }
+  #intro { grid-template-columns: 1fr; gap: 0; }
+  .intro-right { padding-top: 0; }
+  .neuro-grid { grid-template-columns: 1fr; }
+  .stats-grid { grid-template-columns: 1fr 1fr; }
+  .hypothesis-inner { grid-template-columns: 1fr; }
+  .conclusion-inner { grid-template-columns: 1fr; }
+  .bar-item { grid-template-columns: 130px 1fr 50px; }
+  .mechanism-flow { flex-direction: column; }
+  .flow-step { border-right: 1px solid var(--border); border-bottom: none; }
+  .flow-step:last-child { border-bottom: 1px solid var(--border); }
+  .flow-step::after { content: '↓'; right: auto; top: auto; bottom: -14px; left: 50%; transform: translateX(-50%); }
+  footer { flex-direction: column; gap: 1rem; text-align: center; }
+}
+</style>
+</head>
+<body>
+
+<div class="cursor" id="cursor"></div>
+<div class="cursor-ring" id="cursorRing"></div>
+<div id="progress"></div>
+
+<nav>
+  <span class="nav-logo">Rerikor.ru — ИИП 2026</span>
+  <ul class="nav-links">
+    <li><a href="#problem">Проблема</a></li>
+    <li><a href="#chapter1">Нейробиология</a></li>
+    <li><a href="#stats">Исследование</a></li>
+    <li><a href="#conclusion">Выводы</a></li>
+  </ul>
+</nav>
+
+<!-- HERO -->
+<section id="hero">
+  <p class="hero-eyebrow">Индивидуальный учебный проект · 10 класс · 2026</p>
+  <h1 class="hero-title">
+    Между<br>
+    <em>оригинальностью</em><br>
+    и репликацией
+  </h1>
+  <p class="hero-subtitle">
+    Имитационное поведение учащихся как ответ на культ исключительности.
+    Почему школьник списывает — это не вопрос морали, а вопрос нейробиологии.
+  </p>
+  <div class="hero-meta">
+    <span>Житнухин Фёдор Михайлович</span>
+    <span>Психология образования</span>
+    <span>19 респондентов</span>
+  </div>
+  <div class="hero-scroll">
+    <div class="scroll-line"></div>
+    <span>Читать далее</span>
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- INTRO / PROBLEM -->
+<section id="problem">
+  <div id="intro">
+    <div class="intro-left reveal">
+      <span class="section-label">01 — Актуальность</span>
+      <h2>Ты либо гений, либо никто</h2>
+      <p>Современная образовательная среда ставит подростка перед деструктивным выбором: демонстрировать экстраординарные способности или признать собственную посредственность. Статус «среднего» приравнивается к интеллектуальному краху.</p>
+      <p>В этих условиях ГДЗ, нейросети и списывание перестают быть «ленью» — они становятся <strong>стратегией выживания</strong>.</p>
+      <div class="pull-quote">
+        «Поверхностность — это не дефицит воли, а активная психологическая работа по сохранению ментального здоровья»
+      </div>
+      <p>Мартин Ковингтон в теории самоценности (*Self-Worth Theory*) утверждает: многие ученики предпочитают казаться ленивыми, чем тупыми. Способность в школьной среде приравнивается к человеческой ценности.</p>
+    </div>
+    <div class="intro-right reveal">
+      <span class="section-label">02 — Проблема</span>
+      <h2>Противоречие системы</h2>
+      <p>Проблема исследования — в противоречии между высокими требованиями к «уникальности» результата и реальным дефицитом психологического ресурса у учащихся.</p>
+      <p><strong>Объект:</strong> учебная деятельность и стратегии поведения старшеклассников.</p>
+      <p><strong>Предмет:</strong> поверхностное выполнение задач (ГДЗ, ИИ, репликация) как инструмент психологической защиты самооценки.</p>
+      <p><strong>Цель:</strong> доказать, что имитационные стратегии — механизм самосохранения личности в условиях академического стресса, а не следствие лени.</p>
+    </div>
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- HYPOTHESIS -->
+<section id="hypothesis" style="max-width:100%; padding: 6rem 3rem;">
+  <div class="hypothesis-inner">
+    <div class="hypo-card hypo-main reveal">
+      <span class="hypo-tag">Рабочая гипотеза</span>
+      <h3 style="margin-top:0">Защита самооценки</h3>
+      <p>Поверхностное выполнение учебных задач является не следствием недостатка способностей или дисциплины, а <strong>осознанной или подсознательной стратегией защиты самооценки</strong> в условиях культа исключительности.</p>
+    </div>
+    <div class="hypo-card hypo-alt reveal">
+      <span class="hypo-tag">Альтернативная гипотеза</span>
+      <h3 style="margin-top:0">Поведенческий проступок</h3>
+      <p>Выбор поверхностных стратегий обусловлен исключительно отсутствием учебной дисциплины, недостатком базовых знаний и стремлением минимизировать затраты. Академическая неискренность — поведенческий проступок, а не психологическая проблема.</p>
+    </div>
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- CHAPTER 1: NEURO -->
+<section id="chapter1">
+  <span class="section-label reveal">Глава 1 — Теоретическая часть</span>
+  <h2 class="reveal">Нейробиология «поверхностности»</h2>
+  <p class="reveal">Мозг человека потребляет более 20% всей вырабатываемой организмом энергии. В условиях депрессивного эпизода или хронического стресса происходит перераспределение этого ресурса — и имитация становится стратегией <strong>энергосбережения</strong>.</p>
+
+  <div class="neuro-grid">
+    <div class="neuro-card reveal">
+      <span class="neuro-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg></span>
+      <h4>Дофаминовая петля</h4>
+      <p>При десенситизации D2-рецепторов от хронического стресса «награда» в виде оценки перестаёт вызывать химический отклик. Мозг фиксирует ситуацию как бессмысленную: затраты есть, прибыли нет. Мозг выбирает имитацию — она в 50–100 раз «дешевле».</p>
+    </div>
+    <div class="neuro-card reveal">
+      <span class="neuro-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg></span>
+      <h4>Префронтальный «блэкаут»</h4>
+      <p>Амигдала воспринимает страх «оказаться средним» как витальную угрозу и посылает тормозящий сигнал в префронтальную кору. Ученик смотрит в лист бумаги и «не видит» букв — это физическая блокировка доступа к рабочей памяти.</p>
+    </div>
+    <div class="neuro-card reveal">
+      <span class="neuro-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="16" height="10" rx="2"/><path d="M22 11v2"/><line x1="6" y1="12" x2="10" y2="12"/></svg></span>
+      <h4>Серотониновая недостаточность</h4>
+      <p>При дефиците серотонина школа начинает восприниматься как враждебная среда. «Правила игры» теряют смысл. Имитация становится социальной мимикрией: ученик «надевает маску» правильных ответов, чтобы система оставила его в покое.</p>
+    </div>
+    <div class="neuro-card reveal">
+      <span class="neuro-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="8" width="18" height="12" rx="2"/><path d="M12 8V5"/><circle cx="12" cy="5" r="1"/><line x1="8" y1="14" x2="8" y2="14"/><line x1="16" y1="14" x2="16" y2="14"/><path d="M9 18h6"/></svg></span>
+      <h4>Цифровое нейропротезирование</h4>
+      <p>Согласно теории «расширенного разума» (Кларк и Чалмерс), ИИ и ГДЗ становятся <em>внешней префронтальной корой</em>. Когда биологическая рабочая память не может удержать структуру сочинения — алгоритм выполняет самую энергозатратную часть работы.</p>
+    </div>
+  </div>
+
+  <h3 class="reveal">Механизм самоинвалидизации</h3>
+  <p class="reveal">Термин <em>self-handicapping</em> (Джонс и Берглас, 1978) описывает создание препятствий собственному успеху как психологическую защиту. В условиях школы это работает так:</p>
+
+  <div class="mechanism-flow reveal">
+    <div class="flow-step">
+      <div class="flow-num">01</div>
+      <h5>Угроза</h5>
+      <p>Ученик сталкивается с угрозой собственной компетентности перед сложной задачей</p>
+    </div>
+    <div class="flow-step">
+      <div class="flow-num">02</div>
+      <h5>Риск</h5>
+      <p>Максимум усилий + провал = прямое доказательство интеллектуальной несостоятельности</p>
+    </div>
+    <div class="flow-step">
+      <div class="flow-num">03</div>
+      <h5>Барьер</h5>
+      <p>Имитация создаёт защитный барьер: вина при провале переносится со способностей на обстоятельства</p>
+    </div>
+    <div class="flow-step">
+      <div class="flow-num">04</div>
+      <h5>Ловушка</h5>
+      <p>«Поверхностность» становится единственным способом существования в системе</p>
+    </div>
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- CHAPTER 2: STATS -->
+<section id="stats" style="max-width:100%; padding:6rem 3rem;">
+  <div class="stats-inner">
+    <span class="section-label reveal">Глава 2 — Практическая часть</span>
+    <h2 class="reveal">Исследование: что говорит статистика</h2>
+    <p class="reveal" style="max-width:700px">Анонимный опрос 19 учащихся 10–11 классов, январь–февраль 2026. Цель — выявить реальные мотивы академической неискренности.</p>
+
+    <div class="stats-grid">
+      <div class="stat-card reveal">
+        <span class="stat-number">84%</span>
+        <span class="stat-label">Используют ГДЗ или нейросети «часто» или «почти всегда»</span>
+        <p class="stat-desc">Категория «принципиально не использую» осталась пустой</p>
+      </div>
+      <div class="stat-card reveal">
+        <span class="stat-number">79%</span>
+        <span class="stat-label">Провал после усилий бьёт по самооценке сильнее</span>
+        <p class="stat-desc">Ключевое доказательство механизма самоинвалидизации</p>
+      </div>
+      <div class="stat-card reveal">
+        <span class="stat-number">95%</span>
+        <span class="stat-label">Боятся начинать сложную задачу без референсов</span>
+        <p class="stat-desc">57,9% — «да, это пугает», 36,8% — «иногда»</p>
+      </div>
+    </div>
+
+    <h3 class="reveal" style="margin-top: 3rem;">Мотивы использования имитационных инструментов</h3>
+    <p class="reveal">Respondents could select multiple reasons. Most common motive — exhaustion, not laziness:</p>
+
+    <div class="bar-chart reveal" id="barChart">
+      <div class="bar-item">
+        <span class="bar-label">Нет сил, апатия</span>
+        <div class="bar-track"><div class="bar-fill" style="--w: 0.474" data-pct="0.474"></div></div>
+        <span class="bar-pct">47%</span>
+      </div>
+      <div class="bar-item">
+        <span class="bar-label">Бессмысленность заданий</span>
+        <div class="bar-track"><div class="bar-fill" style="--w: 0.421" data-pct="0.421"></div></div>
+        <span class="bar-pct">42%</span>
+      </div>
+      <div class="bar-item">
+        <span class="bar-label">«Просто лень»</span>
+        <div class="bar-track"><div class="bar-fill" style="--w: 0.368" data-pct="0.368"></div></div>
+        <span class="bar-pct">37%</span>
+      </div>
+      <div class="bar-item">
+        <span class="bar-label">Страх плохой оценки</span>
+        <div class="bar-track"><div class="bar-fill" style="--w: 0.316" data-pct="0.316"></div></div>
+        <span class="bar-pct">32%</span>
+      </div>
+      <div class="bar-item">
+        <span class="bar-label">Нехватка времени</span>
+        <div class="bar-track"><div class="bar-fill" style="--w: 0.316" data-pct="0.316"></div></div>
+        <span class="bar-pct">32%</span>
+      </div>
+    </div>
+
+    <div class="pull-quote reveal" style="max-width: 700px;">
+      Апатия и усталость (47%) опережают «лень» (37%) — это значит: в основе поверхностности лежит не дефицит дисциплины, а дефицит <strong>ресурса</strong>.
+    </div>
+
+    <h3 class="reveal" style="margin-top: 2.5rem">Культ исключительности: давление системы</h3>
+    <p class="reveal"><strong>79%</strong> учащихся ощущают давление необходимости «быть одарённым» и «исключительным» — 31,6% постоянно, 47,4% иногда. <strong>94,7%</strong> в той или иной мере боятся начинать сложную задачу без чужой помощи.</p>
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- AUTOETHNOGRAPHY -->
+<section id="autoethno">
+  <span class="section-label reveal">2.4 — Автоэтнография</span>
+  <h2 class="reveal">Личный опыт как зеркало системного кризиса</h2>
+
+  <div class="autoethno-text">
+    <p class="reveal">В дополнение к статистике в работу включён метод автоэтнографии — рефлексивный анализ личного опыта автора. Это позволяет рассмотреть проблему изнутри.</p>
+
+    <div class="long-quote reveal">
+      <p>Переход от оригинального рисования к стратегии репликации совпал с периодом максимального академического давления. Репликация выступала как «когнитивный костыль» — при отсутствии нейрохимического ресурса на создание оригинального образа, мозг выбирал путь наименьшего сопротивления, чтобы получить визуально безупречный результат и защитить самооценку от чувства творческого бессилия.</p>
+    </div>
+
+    <p class="reveal">Состояние «внутренней пустоты» с научной точки зрения является ангедонией и блокировкой префронтальной коры амигдалой. В этом состоянии любая задача, требующая погружения, вызывает физическое отторжение.</p>
+    <p class="reveal">Когда планка «быть лучшим» становится недостижимой из-за болезни или усталости, психика выбирает тотальную поверхностность. Проще не стараться совсем и выдать чужой результат за свой, чем приложить усилия и выдать свой, но «средний».</p>
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- CONCLUSION -->
+<section id="conclusion" style="max-width:100%; padding:7rem 3rem; background: var(--bg2);">
+  <div class="conclusion-inner">
+    <div>
+      <span class="section-label reveal">Выводы</span>
+      <h2 class="reveal">Поверхностность — симптом, не приговор</h2>
+      <p class="reveal">Практическое исследование, сочетающее статистику 19 респондентов и личную рефлексию автора, подтверждает гипотезу.</p>
+
+      <ul class="thesis-list">
+        <li class="reveal">
+          <span class="thesis-num">01</span>
+          Имитационные стратегии — защитная реакция на токсичную среду, требующую исключительности при дефиците ресурсов.
+        </li>
+        <li class="reveal">
+          <span class="thesis-num">02</span>
+          79% сверстников находятся в той же «ловушке самоинвалидизации» — это системная, а не индивидуальная проблема.
+        </li>
+        <li class="reveal">
+          <span class="thesis-num">03</span>
+          «Лень» уступает «апатии» как мотиву списывания — нейробиологический контекст полностью меняет этическую оценку явления.
+        </li>
+        <li class="reveal">
+          <span class="thesis-num">04</span>
+          Поверхностность — не частный случай лени, а симптом системного кризиса психического здоровья современных старшеклассников.
+        </li>
+      </ul>
+    </div>
+
+    <div class="reveal">
+      <div class="project-card">
+        <h4>Паспорт продукта</h4>
+        <dl>
+          <dt>Название</dt>
+          <dd>Сайт-лонгрид «Между оригинальностью и репликацией»</dd>
+          <dt>Форма</dt>
+          <dd>Интерактивный веб-сайт</dd>
+          <dt>Цель</dt>
+          <dd>Демонстрация исследования в доступной форме</dd>
+          <dt>Аудитория</dt>
+          <dd>Учащиеся, педагоги, родители</dd>
+          <dt>Адрес</dt>
+          <dd>rerikor.ru</dd>
+          <dt>Технология</dt>
+          <dd>Статический HTML/CSS/JS</dd>
+          <dt>Значимость</dt>
+          <dd>Переосмысляет «лень» как нейробиологическую необходимость</dd>
+        </dl>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <p>© 2026 Житнухин Фёдор Михайлович · ИИП · 10 класс</p>
+  <p>rerikor.ru · Индивидуальный учебный проект</p>
+</footer>
+
+<script>
+// Cursor
+const cursor = document.getElementById('cursor');
+const ring = document.getElementById('cursorRing');
+let mx = 0, my = 0, rx = 0, ry = 0;
+document.addEventListener('mousemove', e => {
+  mx = e.clientX; my = e.clientY;
+  cursor.style.left = mx + 'px';
+  cursor.style.top = my + 'px';
+});
+function animateRing() {
+  rx += (mx - rx) * 0.12;
+  ry += (my - ry) * 0.12;
+  ring.style.left = rx + 'px';
+  ring.style.top = ry + 'px';
+  requestAnimationFrame(animateRing);
+}
+animateRing();
+document.querySelectorAll('a, button, .neuro-card, .stat-card, .hypo-card').forEach(el => {
+  el.addEventListener('mouseenter', () => {
+    cursor.style.width = '16px';
+    cursor.style.height = '16px';
+    ring.style.width = '60px';
+    ring.style.height = '60px';
+    ring.style.borderColor = 'rgba(200,169,110,0.8)';
+  });
+  el.addEventListener('mouseleave', () => {
+    cursor.style.width = '8px';
+    cursor.style.height = '8px';
+    ring.style.width = '36px';
+    ring.style.height = '36px';
+    ring.style.borderColor = 'rgba(200,169,110,0.4)';
+  });
+});
+
+// Progress
+const prog = document.getElementById('progress');
+window.addEventListener('scroll', () => {
+  const h = document.documentElement.scrollHeight - window.innerHeight;
+  prog.style.width = (window.scrollY / h * 100) + '%';
+});
+
+// Reveal on scroll
+const reveals = document.querySelectorAll('.reveal');
+const io = new IntersectionObserver((entries) => {
+  entries.forEach((e, i) => {
+    if (e.isIntersecting) {
+      setTimeout(() => e.target.classList.add('visible'), 80);
+      io.unobserve(e.target);
+    }
+  });
+}, { threshold: 0.12 });
+reveals.forEach(el => io.observe(el));
+
+// Stagger siblings
+document.querySelectorAll('.neuro-grid, .stats-grid, .thesis-list, .hypothesis-inner').forEach(parent => {
+  parent.querySelectorAll('.reveal').forEach((el, i) => {
+    el.style.transitionDelay = (i * 0.1) + 's';
+  });
+});
+
+// Bar chart animation
+const barIo = new IntersectionObserver((entries) => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      e.target.querySelectorAll('.bar-fill').forEach((bar, i) => {
+        setTimeout(() => {
+          bar.classList.add('animated');
+          bar.style.width = (parseFloat(bar.dataset.pct) * 100) + '%';
+        }, i * 120);
+      });
+      barIo.unobserve(e.target);
+    }
+  });
+}, { threshold: 0.3 });
+const bc = document.getElementById('barChart');
+if (bc) barIo.observe(bc);
+</script>
+</body>
+</html>
