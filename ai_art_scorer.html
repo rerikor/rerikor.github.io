@@ -6,95 +6,116 @@
 <title>AI-check: оцени арты</title>
 <link rel="icon" type="image/png" href="icon.png">
 <link rel="apple-touch-icon" href="icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400;1,700&family=IBM+Plex+Mono:wght@300;400;500&family=Crimson+Pro:ital,wght@0,300;0,400;0,600;1,300;1,400&display=swap" rel="stylesheet">
 <style>
 :root{
-  --bg1:#0f0c1d;
-  --bg2:#1a1330;
-  --accent:#b48cff;
-  --accent2:#ff8cc8;
-  --card:#1e1735;
-  --card-border:#352a55;
-  --text:#f1ecff;
-  --text-dim:#a89bd1;
-  --good:#7ee7b8;
-  --bad:#ff8f8f;
-  --font: 'Segoe UI', system-ui, -apple-system, sans-serif;
-}
-@media (prefers-color-scheme: light){
-  :root:not([data-theme="dark"]){
-    --bg1:#f4f0ff;
-    --bg2:#ece3ff;
-    --card:#ffffff;
-    --card-border:#ddd0ff;
-    --text:#221a3d;
-    --text-dim:#6f628f;
-  }
-}
-:root[data-theme="dark"]{
-  --bg1:#0f0c1d; --bg2:#1a1330; --card:#1e1735; --card-border:#352a55; --text:#f1ecff; --text-dim:#a89bd1;
+  --bg1:#0a0a0b;
+  --bg2:#111113;
+  --card:#16161a;
+  --card-border:#2a2a32;
+  --text:#e8e6e1;
+  --text-dim:#9b9891;
+  --text-muted:#5c5a56;
+  --accent:#8f80f0;
+  --accent2:#6b5ce6;
+  --accent-dim:rgba(143,128,240,0.12);
+  --good:#8fc9a8;
+  --bad:#d97a7a;
+  --font-serif:'Playfair Display', serif;
+  --font-body:'Crimson Pro', Georgia, serif;
+  --font-mono:'IBM Plex Mono', monospace;
 }
 *{box-sizing:border-box;}
 body{
   margin:0;
   min-height:100vh;
-  font-family:var(--font);
-  background:
-    radial-gradient(circle at 15% 20%, rgba(180,140,255,0.18), transparent 45%),
-    radial-gradient(circle at 85% 80%, rgba(255,140,200,0.14), transparent 45%),
-    linear-gradient(160deg, var(--bg1), var(--bg2));
+  font-family:var(--font-body);
+  background:var(--bg1);
   color:var(--text);
   display:flex;
   flex-direction:column;
   align-items:center;
-  padding:24px 16px 60px;
+  padding:56px 20px 72px;
   overflow-x:hidden;
+  font-size:18px;
+  line-height:1.6;
+  cursor:none;
+}
+@media (hover:none), (pointer:coarse){
+  body{ cursor:auto; }
+  .cursor, .cursor-ring{ display:none; }
+}
+
+/* CURSOR */
+.cursor{
+  position:fixed;
+  width:8px; height:8px;
+  background:var(--accent);
+  border-radius:50%;
+  pointer-events:none;
+  z-index:9999;
+  transform:translate(-50%,-50%);
+  transition:width .2s, height .2s, opacity .2s;
+  mix-blend-mode:difference;
+}
+.cursor-ring{
+  position:fixed;
+  width:34px; height:34px;
+  border:1px solid rgba(143,128,240,0.45);
+  border-radius:50%;
+  pointer-events:none;
+  z-index:9998;
+  transform:translate(-50%,-50%);
+  transition:transform .12s ease, width .3s, height .3s, border-color .3s;
 }
 .header{
   text-align:center;
-  max-width:640px;
-  margin-bottom:28px;
-  animation:fadeDown .7s ease both;
+  max-width:620px;
+  margin-bottom:40px;
+  animation:fadeDown .8s ease both;
 }
 .header h1{
-  font-size:clamp(1.5rem,4vw,2.3rem);
-  margin:0 0 8px;
-  background:linear-gradient(90deg,var(--accent),var(--accent2));
-  -webkit-background-clip:text;
-  background-clip:text;
-  color:transparent;
-  font-weight:800;
-  letter-spacing:.5px;
+  font-family:var(--font-serif);
+  font-size:clamp(1.7rem,4.2vw,2.6rem);
+  font-weight:900;
+  margin:0 0 14px;
+  color:var(--text);
+  letter-spacing:-0.01em;
 }
 .header p{
   color:var(--text-dim);
   font-size:.95rem;
-  line-height:1.5;
+  font-weight:300;
+  line-height:1.6;
   margin:0;
 }
 .progress-wrap{
   width:100%;
   max-width:520px;
-  margin-bottom:22px;
+  margin-bottom:28px;
 }
 .progress-track{
-  height:8px;
-  border-radius:99px;
+  height:2px;
   background:var(--card-border);
   overflow:hidden;
 }
 .progress-fill{
   height:100%;
-  border-radius:99px;
-  background:linear-gradient(90deg,var(--accent),var(--accent2));
+  background:var(--accent);
   width:0%;
   transition:width .5s cubic-bezier(.4,0,.2,1);
 }
 .progress-label{
   display:flex;
   justify-content:space-between;
-  font-size:.78rem;
-  color:var(--text-dim);
-  margin-top:6px;
+  font-family:var(--font-mono);
+  font-size:.68rem;
+  letter-spacing:.12em;
+  text-transform:uppercase;
+  color:var(--text-muted);
+  margin-top:10px;
 }
 .stage{
   width:100%;
@@ -107,137 +128,137 @@ body{
   inset:0;
   display:flex;
   flex-direction:column;
-  background:var(--card);
+  background:var(--bg2);
   border:1px solid var(--card-border);
-  border-radius:22px;
-  padding:20px;
-  box-shadow:0 20px 60px -20px rgba(100,60,200,0.35);
+  padding:24px;
   opacity:0;
-  transform:translateY(30px) scale(.96);
+  transform:translateY(18px);
   pointer-events:none;
-  transition:opacity .45s ease, transform .45s cubic-bezier(.34,1.56,.64,1);
+  transition:opacity .45s ease, transform .45s ease, border-color .3s;
 }
 .slide.active{
   opacity:1;
-  transform:translateY(0) scale(1);
+  transform:translateY(0);
   pointer-events:auto;
   position:relative;
 }
 .slide.leaving{
   opacity:0;
-  transform:translateY(-24px) scale(.97);
+  transform:translateY(-14px);
 }
+.slide:hover{border-color:var(--accent);}
 .art-frame{
-  border-radius:16px;
   overflow:hidden;
   background:#000;
   aspect-ratio:1/1;
   display:flex;
   align-items:center;
   justify-content:center;
-  margin-bottom:18px;
+  margin-bottom:20px;
   position:relative;
+  border:1px solid var(--card-border);
 }
 .art-frame img{
   width:100%;
   height:100%;
-  object-fit:contain;
-  animation:artPop .5s cubic-bezier(.34,1.56,.64,1) both;
+  object-fit:cover;
+  display:block;
+  animation:artPop .7s cubic-bezier(.22,1,.36,1) both;
 }
 .art-counter{
   position:absolute;
   top:10px;
   right:10px;
-  background:rgba(0,0,0,.55);
-  color:#fff;
-  font-size:.75rem;
-  padding:4px 10px;
-  border-radius:99px;
-  backdrop-filter:blur(4px);
+  background:rgba(10,10,11,.75);
+  color:var(--text);
+  font-family:var(--font-mono);
+  font-size:.68rem;
+  letter-spacing:.1em;
+  padding:5px 10px;
+  border:1px solid var(--card-border);
 }
 .scale-label{
   display:flex;
   justify-content:space-between;
-  font-size:.85rem;
-  color:var(--text-dim);
-  margin-bottom:8px;
-  font-weight:600;
+  font-family:var(--font-mono);
+  font-size:.72rem;
+  letter-spacing:.1em;
+  text-transform:uppercase;
+  color:var(--text-muted);
+  margin-bottom:10px;
 }
 .scale-value{
   text-align:center;
-  font-size:2.4rem;
-  font-weight:800;
-  margin:2px 0 10px;
-  background:linear-gradient(90deg,var(--good),var(--accent));
-  -webkit-background-clip:text;
-  background-clip:text;
-  color:transparent;
-  transition:all .2s;
+  font-family:var(--font-serif);
+  font-size:2.6rem;
+  font-weight:900;
+  margin:2px 0 14px;
+  color:var(--accent);
+  transition:color .2s;
 }
 input[type=range]{
   -webkit-appearance:none;
   width:100%;
-  height:10px;
-  border-radius:99px;
-  background:linear-gradient(90deg,var(--good),#ffd27e,var(--bad));
+  height:2px;
+  background:var(--card-border);
   outline:none;
-  margin-bottom:6px;
+  margin-bottom:8px;
 }
 input[type=range]::-webkit-slider-thumb{
   -webkit-appearance:none;
-  width:28px;height:28px;
+  width:18px;height:18px;
   border-radius:50%;
-  background:#fff;
-  border:4px solid var(--accent);
+  background:var(--bg1);
+  border:2px solid var(--accent);
   cursor:pointer;
-  box-shadow:0 2px 8px rgba(0,0,0,.3);
   transition:transform .15s;
 }
-input[type=range]::-webkit-slider-thumb:active{transform:scale(1.15);}
+input[type=range]::-webkit-slider-thumb:active{transform:scale(1.2);}
 input[type=range]::-moz-range-thumb{
-  width:28px;height:28px;
+  width:18px;height:18px;
   border-radius:50%;
-  background:#fff;
-  border:4px solid var(--accent);
+  background:var(--bg1);
+  border:2px solid var(--accent);
   cursor:pointer;
 }
 .scale-ticks{
   display:flex;
   justify-content:space-between;
-  font-size:.7rem;
-  color:var(--text-dim);
-  margin-bottom:16px;
+  font-family:var(--font-mono);
+  font-size:.65rem;
+  color:var(--text-muted);
+  margin-bottom:20px;
   padding:0 2px;
 }
 .nav-row{
   display:flex;
-  gap:10px;
+  gap:12px;
   margin-top:auto;
 }
 button{
-  font-family:inherit;
+  font-family:var(--font-mono);
   cursor:pointer;
-  border:none;
-  border-radius:14px;
-  font-weight:700;
-  transition:transform .15s, filter .15s;
+  border:1px solid transparent;
+  font-size:.78rem;
+  letter-spacing:.1em;
+  text-transform:uppercase;
+  transition:all .25s;
 }
-button:active{transform:scale(.96);}
 .btn-primary{
   flex:1;
-  padding:14px;
-  font-size:1rem;
-  background:linear-gradient(90deg,var(--accent),var(--accent2));
-  color:#1a1330;
+  padding:15px;
+  background:var(--accent);
+  color:var(--bg1);
+  border-color:var(--accent);
 }
-.btn-primary:hover{filter:brightness(1.08);}
+.btn-primary:hover{background:var(--accent2);border-color:var(--accent2);}
 .btn-secondary{
-  padding:14px 18px;
+  padding:15px 20px;
   background:transparent;
   border:1px solid var(--card-border);
   color:var(--text-dim);
 }
-.btn-secondary:hover{color:var(--text);}
+.btn-secondary:hover{color:var(--text);border-color:var(--text-muted);}
 /* results */
 .results{
   width:100%;
@@ -246,101 +267,167 @@ button:active{transform:scale(.96);}
 }
 .results h2{
   text-align:center;
-  font-size:1.6rem;
-  margin-bottom:4px;
-  background:linear-gradient(90deg,var(--accent),var(--accent2));
-  -webkit-background-clip:text;background-clip:text;color:transparent;
+  font-family:var(--font-serif);
+  font-size:1.8rem;
+  font-weight:700;
+  margin-bottom:6px;
+  color:var(--text);
 }
 .results .subtitle{
   text-align:center;
-  color:var(--text-dim);
-  margin-bottom:20px;
-  font-size:.9rem;
+  font-family:var(--font-mono);
+  color:var(--text-muted);
+  margin-bottom:28px;
+  font-size:.75rem;
+  letter-spacing:.08em;
+  text-transform:uppercase;
 }
 .avg-card{
-  background:var(--card);
+  background:var(--bg2);
   border:1px solid var(--card-border);
-  border-radius:20px;
-  padding:24px;
+  padding:32px 24px;
   text-align:center;
-  margin-bottom:24px;
-  box-shadow:0 20px 50px -25px rgba(100,60,200,.4);
+  margin-bottom:28px;
+  position:relative;
+}
+.avg-card::before{
+  content:'';
+  position:absolute;
+  top:0;left:0;right:0;
+  height:2px;
+  background:var(--accent);
 }
 .avg-number{
-  font-size:3.4rem;
+  font-family:var(--font-serif);
+  font-size:3.6rem;
   font-weight:900;
   line-height:1;
 }
 .avg-number.good{color:var(--good);}
-.avg-number.mid{color:#ffd27e;}
+.avg-number.mid{color:var(--accent);}
 .avg-number.bad{color:var(--bad);}
-.avg-desc{color:var(--text-dim);margin-top:8px;font-size:.9rem;}
+.avg-desc{color:var(--text-dim);margin-top:12px;font-size:.9rem;font-weight:300;line-height:1.6;}
 .results-grid{
   display:grid;
   grid-template-columns:repeat(auto-fill,minmax(120px,1fr));
-  gap:12px;
-  margin-bottom:24px;
+  gap:1px;
+  background:var(--card-border);
+  margin-bottom:28px;
+  border:1px solid var(--card-border);
 }
 .result-item{
-  background:var(--card);
-  border:1px solid var(--card-border);
-  border-radius:14px;
+  background:var(--bg2);
   overflow:hidden;
-  animation:popIn .4s cubic-bezier(.34,1.56,.64,1) both;
+  animation:fadeIn .4s ease both;
+
 }
-.result-item img{width:100%;aspect-ratio:1/1;object-fit:cover;display:block;}
+.result-item:hover{transform:scale(1.04);position:relative;z-index:1;}
+.result-item img{width:100%;aspect-ratio:1/1;object-fit:cover;display:block;transition:filter .3s;}
+.result-item:hover img{filter:brightness(1.08);}
 .result-score{
-  padding:6px 8px;
-  font-size:.8rem;
-  font-weight:700;
+  padding:8px 10px;
+  font-family:var(--font-mono);
+  font-size:.72rem;
   display:flex;
   justify-content:space-between;
   align-items:center;
+  color:var(--text-dim);
 }
-.dot{width:8px;height:8px;border-radius:50%;}
-.actions{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;}
+.dot{width:6px;height:6px;border-radius:50%;}
+.actions{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;}
 .btn-outline{
-  padding:12px 20px;
+  padding:13px 22px;
   background:transparent;
   border:1px solid var(--accent);
   color:var(--accent);
-  border-radius:14px;
-  font-size:.9rem;
+  font-size:.78rem;
 }
+.btn-outline:hover{background:var(--accent-dim);}
 .hint{
   text-align:center;
-  color:var(--text-dim);
-  font-size:.78rem;
-  margin-top:20px;
+  color:var(--text-muted);
+  font-size:.82rem;
+  font-weight:300;
+  margin-top:24px;
   max-width:480px;
-  line-height:1.5;
+  line-height:1.6;
 }
-@keyframes fadeDown{from{opacity:0;transform:translateY(-16px);}to{opacity:1;transform:translateY(0);}}
-@keyframes fadeUp{from{opacity:0;transform:translateY(16px);}to{opacity:1;transform:translateY(0);}}
-@keyframes artPop{from{opacity:0;transform:scale(.9);}to{opacity:1;transform:scale(1);}}
-@keyframes popIn{from{opacity:0;transform:scale(.8);}to{opacity:1;transform:scale(1);}}
+@keyframes fadeDown{from{opacity:0;transform:translateY(-14px);}to{opacity:1;transform:translateY(0);}}
+@keyframes fadeUp{from{opacity:0;transform:translateY(14px);}to{opacity:1;transform:translateY(0);}}
+@keyframes fadeIn{from{opacity:0;}to{opacity:1;}}
+@keyframes artPop{from{opacity:0;transform:scale(1.06);filter:blur(6px);}to{opacity:1;transform:scale(1);filter:blur(0);}}
+@keyframes bump{0%{transform:scale(1);}40%{transform:scale(1.18);}100%{transform:scale(1);}}
+@keyframes rise{from{opacity:0;transform:translateY(12px);}to{opacity:1;transform:translateY(0);}}
+@keyframes lineGrow{from{transform:scaleX(0);}to{transform:scaleX(1);}}
+
+/* ---- плавность всего ---- */
+#app{
+  width:100%;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  transition:opacity .35s ease, transform .35s cubic-bezier(.22,1,.36,1), filter .35s ease;
+}
+#app.out{opacity:0;transform:translateY(-10px);filter:blur(4px);}
+#app.in{opacity:0;transform:translateY(12px);filter:blur(4px);transition:none;}
+.intro > *, .results > *{animation:rise .7s cubic-bezier(.22,1,.36,1) both;}
+.intro > *:nth-child(2), .results > *:nth-child(2){animation-delay:.06s;}
+.intro > *:nth-child(3), .results > *:nth-child(3){animation-delay:.12s;}
+.intro > *:nth-child(4), .results > *:nth-child(4){animation-delay:.18s;}
+.intro > *:nth-child(5), .results > *:nth-child(5){animation-delay:.24s;}
+.intro > *:nth-child(6), .results > *:nth-child(6){animation-delay:.30s;}
+.intro::before, .avg-card::before{transform-origin:left;animation:lineGrow 1s cubic-bezier(.22,1,.36,1) .2s both;}
+.scale-value.bump{animation:bump .35s cubic-bezier(.22,1,.36,1);}
+.scale-value, .scale-label span{transition:color .35s ease, opacity .35s ease;}
+.scale-label span.on{color:var(--accent);}
+button, .name-input, .btn-outline, .slide, .result-item{transition:all .35s cubic-bezier(.22,1,.36,1);}
+.btn-primary:hover, .btn-secondary:hover, .btn-outline:hover{transform:translateY(-2px);}
+button:active{transform:translateY(0) scale(.98);}
+.ico{width:1em;height:1em;vertical-align:-0.15em;stroke:currentColor;fill:none;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round;}
+.intro .emoji{color:var(--accent);}
+.intro .emoji .ico{width:40px;height:40px;stroke-width:1.2;}
+.scale-label span{display:inline-flex;align-items:center;gap:6px;}
+.progress-fill{transition:width .8s cubic-bezier(.22,1,.36,1);}
+.result-item img{animation:artPop .8s cubic-bezier(.22,1,.36,1) both;animation-delay:inherit;}
+.result-item{animation:rise .6s cubic-bezier(.22,1,.36,1) both;}
+@media (prefers-reduced-motion: reduce){
+  *, *::before, *::after{animation-duration:.01ms !important;transition-duration:.01ms !important;}
+}
 .intro{
   width:100%;max-width:480px;text-align:center;
-  background:var(--card);border:1px solid var(--card-border);
-  border-radius:22px;padding:32px 24px;
-  animation:fadeUp .6s ease both;
+  background:var(--bg2);border:1px solid var(--card-border);
+  padding:40px 28px;
+  animation:fadeUp .7s ease both;
+  position:relative;
 }
-.intro .emoji{font-size:3rem;margin-bottom:6px;}
-.intro h2{margin:0 0 10px;font-size:1.3rem;}
-.intro p{color:var(--text-dim);font-size:.9rem;line-height:1.6;margin-bottom:22px;}
+.intro::before{
+  content:'';
+  position:absolute;
+  top:0;left:0;right:0;
+  height:2px;
+  background:var(--accent);
+}
+.intro .emoji{font-size:2.4rem;margin-bottom:10px;opacity:.85;}
+.intro h2{font-family:var(--font-serif);font-weight:700;margin:0 0 12px;font-size:1.5rem;}
+.intro p{color:var(--text-dim);font-size:.92rem;font-weight:300;line-height:1.65;margin-bottom:26px;}
 .name-input{
-  width:100%;padding:12px 14px;border-radius:12px;
+  width:100%;padding:13px 14px;
   border:1px solid var(--card-border);background:transparent;color:var(--text);
-  font-size:.95rem;margin-bottom:16px;font-family:inherit;
+  font-size:.92rem;margin-bottom:20px;font-family:var(--font-body);
+  transition:border-color .3s;
 }
-.name-input::placeholder{color:var(--text-dim);}
+.name-input:focus{outline:none;border-color:var(--accent);}
+.name-input::placeholder{color:var(--text-muted);}
 </style>
 </head>
 <body>
 
+<div class="cursor" id="cursor"></div>
+<div class="cursor-ring" id="cursorRing"></div>
+
 <div class="header">
   <h1>Насколько это похоже на ИИ?</h1>
-  <p>Оцени каждый арт по шкале от 0 (точно рука) до 10 (точно нейросеть). Никакой магии — только твоё чутьё 👀</p>
+  <p>Оцени каждый арт по шкале от 0 (точно рука) до 10 (точно нейросеть). Никакой магии — только твоё чутьё.</p>
 </div>
 
 <div id="app"></div>
@@ -354,7 +441,7 @@ let scores = new Array(TOTAL).fill(5);
 let rated = new Array(TOTAL).fill(false);
 let judgeName = '';
 const STORAGE_KEY = 'ai_art_check_progress_v1';
-const SCORES_ENDPOINT = 'https://script.google.com/macros/s/AKfycbxa58NPEF2OMRBY_XNB6cvn_iEpGhpfBAP0wbQQOTJ6cGb-97KOA-buTxM-oxUeYpaU0A/exec';
+const SCORES_ENDPOINT = 'https://script.google.com/macros/s/AKfycbxrTRa480Rb8YOh1XD1tMSJXvuYaC-87yhuQ2yuqcpgagG91SLWAdIKcL64prX94lP6qA/exec';
 let resultsSubmitted = false;
 
 function submitResultsToSheet(){
@@ -398,20 +485,68 @@ function trySave(){
   }catch(e){}
 }
 
+const ICON = {
+  brush:'<svg class="ico" viewBox="0 0 24 24"><path d="M18.4 2.6a2 2 0 0 1 2.9 2.9L12 14.8 9.2 12z"/><path d="M9.2 12c-2.4 0-4 1.6-4 4 0 1.8-1.2 3-3.2 3.5 1.2 1.3 3 2 5 2 3.3 0 5-2 5-4.7"/></svg>',
+  hand:'<svg class="ico" viewBox="0 0 24 24"><path d="M18 11V6a2 2 0 0 0-4 0v5"/><path d="M14 10V4a2 2 0 0 0-4 0v6"/><path d="M10 10.5V6a2 2 0 0 0-4 0v8"/><path d="M18 8a2 2 0 1 1 4 0v6a8 8 0 0 1-8 8h-2c-2.8 0-4.5-.9-6-2.4l-3.6-3.6a2 2 0 0 1 2.8-2.8L7 15"/></svg>',
+  cpu:'<svg class="ico" viewBox="0 0 24 24"><rect x="5" y="5" width="14" height="14" rx="1"/><rect x="9" y="9" width="6" height="6"/><path d="M9 2v3M15 2v3M9 19v3M15 19v3M2 9h3M2 15h3M19 9h3M19 15h3"/></svg>',
+  arrow:'<svg class="ico" viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></svg>',
+  back:'<svg class="ico" viewBox="0 0 24 24"><path d="M19 12H5M11 18l-6-6 6-6"/></svg>',
+  check:'<svg class="ico" viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></svg>',
+  redo:'<svg class="ico" viewBox="0 0 24 24"><path d="M21 12a9 9 0 1 1-2.6-6.4"/><path d="M21 3v6h-6"/></svg>'
+};
+
+// Плавная смена экранов
+let viewBusy = false;
+function setView(html, after){
+  const swap = () => {
+    app.innerHTML = html;
+    app.classList.remove('out');
+    app.classList.add('in');
+    void app.offsetWidth;
+    app.classList.remove('in');
+    if(after) after();
+  };
+  if(!app.innerHTML.trim()){ swap(); return; }
+  app.classList.add('out');
+  setTimeout(swap, 300);
+}
+let lastPct = 0;
+function countUp(el, to){
+  const t0 = performance.now(), dur = 1400;
+  (function step(t){
+    const k = Math.min(1, (t - t0) / dur), e = 1 - Math.pow(1 - k, 4);
+    el.textContent = (to * e).toFixed(1).replace(/\.0$/, '');
+    if(k < 1) requestAnimationFrame(step); else el.textContent = to;
+  })(t0);
+}
+
 const app = document.getElementById('app');
+// кадрирование отдельных артов (индекс с 0): что показывать при обрезке в квадрат
+const ART_POS = { 8: 'center top' };
+const artPos = i => ART_POS[i] ? `object-position:${ART_POS[i]};` : '';
+let snapAnim = null;
+function snapSlider(el){
+  const from = parseFloat(el.value), to = Math.round(from), t0 = performance.now();
+  cancelAnimationFrame(snapAnim);
+  (function step(t){
+    const k = Math.min(1, (t - t0) / 220), e = 1 - Math.pow(1 - k, 3);
+    el.value = from + (to - from) * e;
+    if(k < 1) snapAnim = requestAnimationFrame(step); else el.value = to;
+  })(t0);
+}
 
 function renderIntro(){
-  app.innerHTML = `
+  setView(`
     <div class="intro">
-      <div class="emoji">🎨</div>
+      <div class="emoji">${ICON.brush}</div>
       <h2>Готов(а) оценивать?</h2>
       <p>Всего артов: <b>${TOTAL}</b>. Для каждого выставь оценку схожести с ИИ-стилем. В конце — сводка и итоговый результат.</p>
       <input class="name-input" id="judgeNameInput" type="text" placeholder="Как тебя подписать в оценке? (необязательно)" value="${judgeName.replace(/"/g,'&quot;')}">
       <div class="nav-row">
-        <button class="btn-primary" onclick="startQuiz()">Начать оценку →</button>
+        <button class="btn-primary" onclick="startQuiz()">Начать оценку ${ICON.arrow}</button>
       </div>
     </div>
-  `;
+  `);
 }
 
 function startQuiz(){
@@ -424,42 +559,57 @@ function startQuiz(){
 
 function scoreColor(v){
   if(v<=3) return 'var(--good)';
-  if(v<=6) return '#ffd27e';
+  if(v<=6) return 'var(--accent)';
   return 'var(--bad)';
 }
 
 function renderStage(){
   const pct = Math.round((current/TOTAL)*100);
-  app.innerHTML = `
+  const fromPct = lastPct; lastPct = pct;
+  setView(`
     <div class="progress-wrap">
-      <div class="progress-track"><div class="progress-fill" style="width:${pct}%"></div></div>
+      <div class="progress-track"><div class="progress-fill" style="width:${fromPct}%" data-to="${pct}"></div></div>
       <div class="progress-label"><span>Арт ${current+1} из ${TOTAL}</span><span>${pct}%</span></div>
     </div>
     <div class="stage">
       <div class="slide active" id="slideCard">
         <div class="art-frame">
           <span class="art-counter">#${current+1}</span>
-          <img src="data:image/jpeg;base64,${IMAGES[current]}" alt="art">
+          <img src="data:image/jpeg;base64,${IMAGES[current]}" alt="art" style="${artPos(current)}">
         </div>
-        <div class="scale-label"><span>👤 Рука</span><span>🤖 ИИ</span></div>
+        <div class="scale-label"><span id="lblHand">${ICON.hand} Рука</span><span id="lblAi">ИИ ${ICON.cpu}</span></div>
         <div class="scale-value" id="scoreDisplay" style="color:${scoreColor(scores[current])}">${scores[current]}</div>
-        <input type="range" min="0" max="10" step="1" value="${scores[current]}" id="scoreSlider" oninput="onSlide(this.value)">
+        <input type="range" min="0" max="10" step="any" value="${scores[current]}" id="scoreSlider" oninput="onSlide(this.value)" onchange="snapSlider(this)">
         <div class="scale-ticks">${[0,1,2,3,4,5,6,7,8,9,10].map(i=>`<span>${i}</span>`).join('')}</div>
         <div class="nav-row">
-          ${current>0 ? '<button class="btn-secondary" onclick="prevSlide()">← Назад</button>' : ''}
-          <button class="btn-primary" onclick="nextSlide()">${current===TOTAL-1 ? 'Завершить и посмотреть итоги 🎉' : 'Дальше →'}</button>
+          ${current>0 ? `<button class="btn-secondary" onclick="prevSlide()">${ICON.back}</button>` : ''}
+          <button class="btn-primary" onclick="nextSlide()">${current===TOTAL-1 ? `Итоги ${ICON.check}` : `Дальше ${ICON.arrow}`}</button>
         </div>
       </div>
     </div>
-  `;
+  `, () => {
+    const f = app.querySelector('.progress-fill');
+    requestAnimationFrame(() => requestAnimationFrame(() => { f.style.width = f.dataset.to + '%'; }));
+    updateLabels(scores[current]);
+  });
 }
 
-function onSlide(v){
-  scores[current] = parseInt(v);
+function updateLabels(v){
+  const h = document.getElementById('lblHand'), a = document.getElementById('lblAi');
+  if(h) h.classList.toggle('on', v <= 4);
+  if(a) a.classList.toggle('on', v >= 6);
+}
+
+function onSlide(raw){
+  const v = Math.round(parseFloat(raw));
+  if(v === scores[current] && rated[current]) return;
+  scores[current] = v;
   rated[current] = true;
   const disp = document.getElementById('scoreDisplay');
   disp.textContent = v;
   disp.style.color = scoreColor(v);
+  disp.classList.remove('bump'); void disp.offsetWidth; disp.classList.add('bump');
+  updateLabels(+v);
   trySave();
 }
 
@@ -492,8 +642,8 @@ function renderResults(){
     const v = scores[i];
     const color = scoreColor(v);
     return `
-      <div class="result-item" style="animation-delay:${i*0.04}s">
-        <img src="data:image/jpeg;base64,${img}" alt="art ${i+1}">
+      <div class="result-item" style="animation-delay:${0.35 + i*0.05}s">
+        <img src="data:image/jpeg;base64,${img}" alt="art ${i+1}" style="${artPos(i)}">
         <div class="result-score">
           <span>#${i+1}</span>
           <span style="display:flex;align-items:center;gap:5px;">
@@ -504,22 +654,22 @@ function renderResults(){
     `;
   }).join('');
 
-  app.innerHTML = `
+  setView(`
     <div class="results">
       <h2>Итоги оценки</h2>
       <div class="subtitle">${judgeName ? 'Оценил(а): ' + escapeHtml(judgeName) : 'Готово!'}</div>
       <div class="avg-card">
-        <div class="avg-number ${cls}">${avgRounded}</div>
+        <div class="avg-number ${cls}" id="avgNum">0</div>
         <div style="color:var(--text-dim);font-size:.9rem;margin-top:2px;">средняя оценка из 10</div>
         <div class="avg-desc">${desc}</div>
       </div>
       <div class="results-grid">${gridItems}</div>
       <div class="actions">
-        <button class="btn-outline" onclick="restart()">🔁 Оценить заново</button>
+        <button class="btn-outline" onclick="restart()">${ICON.redo} Оценить заново</button>
       </div>
       <div class="hint">Совет: если несколько работ получили высокую оценку — не расстраивайся, это субъективное мнение одного человека, а не диагноз. Собери оценки от нескольких друзей для более честной картины.</div>
     </div>
-  `;
+  `, () => countUp(document.getElementById('avgNum'), avgRounded));
 }
 
 function escapeHtml(s){
@@ -531,6 +681,7 @@ function restart(){
   scores = new Array(TOTAL).fill(5);
   rated = new Array(TOTAL).fill(false);
   current = 0;
+  lastPct = 0;
   try{ localStorage.removeItem(STORAGE_KEY); }catch(e){}
   renderIntro();
 }
@@ -541,6 +692,47 @@ if(rated.some(r=>r) && current < TOTAL){
 } else {
   renderIntro();
 }
+
+// Курсор-кружок (как на index.html)
+(function(){
+  const cursor = document.getElementById('cursor');
+  const ring = document.getElementById('cursorRing');
+  if(!cursor || !ring) return;
+  let mx = 0, my = 0, rx = 0, ry = 0;
+  document.addEventListener('mousemove', e => {
+    mx = e.clientX; my = e.clientY;
+    cursor.style.left = mx + 'px';
+    cursor.style.top = my + 'px';
+  });
+  function animateRing(){
+    rx += (mx - rx) * 0.12;
+    ry += (my - ry) * 0.12;
+    ring.style.left = rx + 'px';
+    ring.style.top = ry + 'px';
+    requestAnimationFrame(animateRing);
+  }
+  animateRing();
+
+  const HOVER_SEL = 'button, .name-input, input[type=range], .result-item, .slide, a';
+  document.addEventListener('mouseover', e => {
+    if(e.target.closest(HOVER_SEL)){
+      cursor.style.width = '16px';
+      cursor.style.height = '16px';
+      ring.style.width = '58px';
+      ring.style.height = '58px';
+      ring.style.borderColor = 'rgba(143,128,240,0.85)';
+    }
+  });
+  document.addEventListener('mouseout', e => {
+    if(e.target.closest(HOVER_SEL)){
+      cursor.style.width = '8px';
+      cursor.style.height = '8px';
+      ring.style.width = '34px';
+      ring.style.height = '34px';
+      ring.style.borderColor = 'rgba(143,128,240,0.45)';
+    }
+  });
+})();
 </script>
 
 </body>
