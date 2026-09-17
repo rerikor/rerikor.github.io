@@ -4,6 +4,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>AI-check: оцени арты</title>
+<link rel="icon" type="image/png" href="icon.png">
+<link rel="apple-touch-icon" href="icon.png">
 <style>
 :root{
   --bg1:#0f0c1d;
@@ -352,6 +354,29 @@ let scores = new Array(TOTAL).fill(5);
 let rated = new Array(TOTAL).fill(false);
 let judgeName = '';
 const STORAGE_KEY = 'ai_art_check_progress_v1';
+const SCORES_ENDPOINT = 'https://script.google.com/macros/s/AKfycby-REPLACE-WITH-YOUR-DEPLOYMENT-ID/exec';
+let resultsSubmitted = false;
+
+function submitResultsToSheet(){
+  if(resultsSubmitted) return;
+  resultsSubmitted = true;
+  try{
+    const sum = scores.reduce((a,b)=>a+b,0);
+    fetch(SCORES_ENDPOINT, {
+      method: 'POST',
+      mode: 'no-cors',
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+      body: JSON.stringify({
+        judgeName: judgeName,
+        scores: scores,
+        sum: sum,
+        count: TOTAL,
+        average: Math.round((sum/TOTAL)*100)/100,
+        ts: new Date().toISOString()
+      })
+    });
+  }catch(e){ /* сеть недоступна — не мешаем показу результатов */ }
+}
 
 function tryLoad(){
   try{
@@ -455,6 +480,7 @@ function nextSlide(){
 }
 
 function renderResults(){
+  submitResultsToSheet();
   const sum = scores.reduce((a,b)=>a+b,0);
   const avg = (sum/TOTAL);
   const avgRounded = Math.round(avg*10)/10;
@@ -501,6 +527,7 @@ function escapeHtml(s){
 }
 
 function restart(){
+  resultsSubmitted = false;
   scores = new Array(TOTAL).fill(5);
   rated = new Array(TOTAL).fill(false);
   current = 0;
