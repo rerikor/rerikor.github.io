@@ -1,0 +1,153 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Маша — заметка</title>
+<meta name="description" content="Личная заметка, оформленная в стиле Obsidian">
+<style>
+:root {
+  --bg: #111113;
+  --panel: #18181b;
+  --panel-2: #1d1d21;
+  --text: #dcdee4;
+  --muted: #8f929b;
+  --faint: #666973;
+  --accent: #9b8cff;
+  --accent-2: #c0b7ff;
+  --border: #2b2c31;
+  --quote: #26232f;
+  --shadow: 0 18px 45px rgba(0,0,0,.28);
+}
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+  margin: 0;
+  background:
+    radial-gradient(circle at 15% 0%, rgba(126,104,255,.10), transparent 32rem),
+    radial-gradient(circle at 100% 20%, rgba(92,75,170,.08), transparent 28rem),
+    var(--bg);
+  color: var(--text);
+  font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  line-height: 1.72;
+}
+a { color: var(--accent-2); }
+.wrapper { display:grid; grid-template-columns: minmax(220px, 270px) minmax(0, 820px); gap: 44px; max-width: 1200px; margin:0 auto; padding:56px 28px 90px; }
+.sidebar { position:sticky; top:28px; align-self:start; }
+.brand { font-weight:700; letter-spacing:.01em; font-size:14px; color:#fff; margin-bottom:24px; }
+.nav-card { background:rgba(24,24,27,.78); border:1px solid var(--border); border-radius:14px; padding:16px; box-shadow:var(--shadow); backdrop-filter:blur(12px); }
+.nav-title { color:var(--muted); font-size:11px; text-transform:uppercase; letter-spacing:.12em; margin:0 0 10px; }
+.nav a { display:block; text-decoration:none; padding:7px 8px; border-radius:8px; color:var(--muted); font-size:13px; }
+.nav a:hover { background:#232328; color:var(--text); }
+.tags { display:flex; flex-wrap:wrap; gap:6px; margin-top:15px; }
+.tag { color:var(--accent-2); background:rgba(155,140,255,.09); border:1px solid rgba(155,140,255,.18); border-radius:999px; padding:3px 8px; font-size:11px; }
+main { min-width:0; }
+.kicker { color:var(--accent); font-size:12px; letter-spacing:.14em; text-transform:uppercase; font-weight:700; margin-bottom:8px; }
+h1 { margin:0; font-size:clamp(36px, 6vw, 56px); line-height:1.08; letter-spacing:-.045em; color:#f1f1f4; }
+.subtitle { color:var(--muted); margin:13px 0 0; font-size:15px; }
+.hero { padding:0 0 36px; border-bottom:1px solid var(--border); margin-bottom:30px; }
+.meta { display:flex; gap:8px; flex-wrap:wrap; margin-top:22px; }
+.meta-item { border:1px solid var(--border); background:var(--panel); border-radius:9px; padding:5px 9px; color:var(--muted); font-size:12px; }
+.section, .timeline-card { margin:0 0 30px; }
+h2 { font-size:24px; letter-spacing:-.025em; margin:0 0 13px; color:#eeeeF2; }
+h2::before { content:"## "; color:var(--faint); font-weight:400; }
+p { margin:9px 0; }
+ul, ol { margin:10px 0 0; padding-left:25px; }
+li { margin:7px 0; }
+li::marker { color:var(--accent); }
+strong { color:#f1f0f7; }
+.timeline-card {
+  position:relative;
+  background:linear-gradient(135deg, rgba(29,29,33,.92), rgba(22,22,25,.92));
+  border:1px solid var(--border);
+  border-radius:14px;
+  padding:21px 23px 20px 25px;
+  box-shadow:0 10px 30px rgba(0,0,0,.15);
+}
+.timeline-card::before {
+  content:"";
+  position:absolute;
+  left:-7px; top:25px;
+  width:12px; height:12px;
+  border-radius:50%;
+  background:var(--accent);
+  box-shadow:0 0 0 4px var(--bg), 0 0 18px rgba(155,140,255,.38);
+}
+.date { color:var(--accent-2); font-weight:700; font-size:14px; letter-spacing:.01em; margin-bottom:9px; }
+code { color:#d9d2ff; background:#222027; border:1px solid #302d38; padding:1px 5px; border-radius:5px; font-size:.9em; }
+footer { color:var(--faint); font-size:11px; border-top:1px solid var(--border); margin-top:45px; padding-top:18px; }
+@media (max-width: 800px) {
+  .wrapper { grid-template-columns:1fr; padding:34px 18px 65px; gap:22px; }
+  .sidebar { position:static; }
+  .nav-card { display:none; }
+  .hero { padding-bottom:28px; }
+  .timeline-card { padding:18px 17px 17px; }
+}
+</style>
+</head>
+<body>
+<div class="wrapper">
+  <aside class="sidebar">
+    <div class="brand">✦ Личная заметка</div>
+    <div class="nav-card">
+      <div class="nav-title">Содержание</div>
+      <nav class="nav">
+        <a href="#summary">Кратко</a>
+        <a href="#details">Подробности</a>
+        <a href="#d19">19 сентября 2026</a>
+        <a href="#d20">20 сентября 2026</a>
+        <a href="#d21">21 сентября 2026</a>
+        <a href="#d22">22 сентября 2026</a>
+        <a href="#d27">27 сентября 2026</a>
+        <a href="#d29">29 сентября 2026</a>
+      </nav>
+      <div class="tags"><span class="tag">#анализ</span><span class="tag">#я</span><span class="tag">#хуйня</span></div>
+    </div>
+  </aside>
+
+  <main>
+    <header class="hero">
+      <div class="kicker">Markdown → Obsidian style</div>
+      <h1>Маша</h1>
+      <p class="subtitle">Личная заметка · последнее обновление: 29 сентября 2026</p>
+      <div class="meta">
+        <span class="meta-item">📅 29.09.2026</span>
+        <span class="meta-item">обновлено 29.09.2026</span>
+        <span class="meta-item">анализ</span><span class="meta-item">я</span><span class="meta-item">хуйня</span>
+      </div>
+    </header>
+
+    <div id="summary">
+      <section class="section"><h2>Последнее обновление: 29 сентября 2026</h2></section>
+    </div>
+    <div id="details">
+      <section class="section"><h2>Кратко</h2><p>Знакомство через Telegram-бот знакомств «Бибинто» (с сентября 2026 года) — после разрыва снова возобновили общение.</p></section>
+    </div>
+    <div id="d19"><section class="section"><h2>Подробности</h2><ul><li>Познакомились 1 сентября 2026 года через Telegram-бота «Бибинто»; именами обменялись только на второй день.</li><li>Живёт и учится во Всеволожске, где Пользователь раньше ходил в школу (Лицей №1). Сейчас она только что перешла в третью школу, физико-математический профиль.</li><li>Общие темы первого долгого разговора: мозг и личность, сны, критика школьной системы, детерминизм. Пользователю понравилось, что они разговаривали на равных, и рядом с ней он чувствовал себя свободно.</li><li>Она выращивает суккуленты и кактусы, раньше ходила в художественную школу (в основном рисует натюрморты), сейчас смотрит «Рика и Морти» (уже досмотрела).</li><li>Пользователь показал ей много своих рисунков, в том числе старых.</li><li>Примерно на полтора года младше него.</li><li>Первую встречу договорились провести в воскресенье, 6 сентября 2026 года, в 13:30 — в кинотеатре у Ладожской, на новом «Человеке-пауке». Билеты оплачивает он, еду и напитки — она.</li><li><strong>4 сентября 2026:</strong> его первоначальный восторг заметно угас. Он сам говорит, что к этому моменту видит уже два «красных флага», и хочет после встречи решить, как двигаться дальше.</li><li><strong>6 сентября 2026:</strong> встреча состоялась. Оба настолько стеснялись, что весь сеанс, сидя рядом в кинотеатре, переписывались только через Telegram. После фильма она сразу поехала домой, а затем объяснила, что дело было не в нём — она просто сильно нервничала: уже около года она почти ни с кем не общалась, кроме подруги и одноклассников.</li><li>Пользователь тепло поблагодарил её, не допытываясь ни о чём. Он говорит, что несмотря на неловкость, ему понравилось.</li><li>Он заметил, насколько сильно её поведение в чате отличается от поведения в реальной жизни.</li><li><strong>7–8 сентября 2026:</strong> произошёл разрыв. После того как он отправил ей старую фотографию, она сделала несколько уничижительных замечаний о его внешности и о том, что он сидит только дома. На уточняющий вопрос она прямо сказала, что это не была шутка. Её извинение состояло из одного слова.</li><li>Он намеренно взял паузу на день, а затем спокойно решил прекратить общение — он не хочет, чтобы с ним так обращались. Он сообщил ей об этом в прощальном сообщении.</li><li>Она ответила, что вложила в него много времени.</li><li>В тот же день (<strong>8 сентября 2026 года</strong>) он отказался от решения прекратить общение: он не хочет заканчивать контакт, она ему симпатична. Он честно написал ей, что обида никуда не делась, но он хочет продолжать разговаривать — при условии, что уничижительные подколы прекратятся и что он будет говорить, если его что-то заденет, а не просто исчезать.</li><li><strong>Уточнение:</strong> честное предложение помириться он уже не успел отправить. Она написала ему на его глазах ещё одно последнее оскорбление, заблокировала его и удалила чат с обеих сторон. Таким образом, с её стороны контакт был прекращён; единственная оставшаяся связь — TikTok.</li><li>Вскоре облегчение сменилось грустью: она была единственным человеком, с которым он регулярно разговаривал и который понимал его рисунки. Он скучает по этому и надеется, что она сама выйдет на связь. <strong>Не поднимать тему её самостоятельно.</strong></li><li><strong>19 сентября 2026:</strong> она сама снова написала ему («Спишь?») и разблокировала его — контакт снова открыт. Пользователь очень этому обрадовался.</li></ul>
+<p>### 19 сентября 2026</p>
+<ol><li>Ночью 19 сентября она сама рассказала ему, что раньше намеренно доводила одного человека до слёз, потому что ей нравилось эмоционально выводить людей из равновесия. При этом она сказала, что рассказывает об этом именно для того, чтобы увидеть его реакцию. Пользователь сам заметил параллель с тем, что она написала ему 7 сентября.</li><li>—</li></ol>
+<p>### 20 сентября 2026</p>
+<ul><li>Он пригласил её на боулинг в ближайшие выходные. На этот раз он хочет преодолеть скованность первой встречи и посмотреть, какая она во время игры: насколько она азартна, как реагирует на неудачи и получает ли удовольствие от процесса.</li></ul>
+<ol><li>О█ г██████, ч██ н█ и█████████ к н██ р████████████ ч█████, н█ х████ б█, ч████ с█ в███████ м████ н███ ч███-т█ р████████. С██ н███████ э██ «в██████████й в████████████»: н█ в████████████ к██ т█████, а п████████й с████ п██████████ н████████ н███████ н█ к███-т█. П███████████ э██ к██ м████████ п███: п███████ п███████ д█████, а з████, в███████, ч███-т█ б██████.</li><li>—</li></ol>
+<p>### 21 сентября 2026</p>
+<p>После того как она увидела в его профиле подарок от Аси, она сочла его лжецом, удалила чат, а затем написала Асе напрямую, чтобы за его спиной выяснить, насколько много он с ней общается, попросив ничего ему не рассказывать. Когда Ася ничего не раскрыла, она оскорбила её и тоже удалила этот чат.</p>
+<ol><li>На его шутливое сообщение «Любимая, ты меня прощаешь?😭» она ответила, что это манипуляция, рассчитанная на то, чтобы вызвать жалость.</li><li>—</li></ol>
+<p>### 22 сентября 2026</p>
+<p>Она снова вышла на связь и сказала, что удаление чата было проверкой — она хотела посмотреть, как он поведёт себя в такой ситуации. Якобы изначально ей было всё равно. Пообещала больше так не делать. Пользователь сразу это принял; общение снова стало дружелюбным.</p>
+<ol><li>Она отдельно похвалила его рисунок Гидеона, особенно лицо, плечи и фон.</li><li><strong>Конец сентября 2026:</strong> она сама сказала ему, что ссоры с ним некоторое время давали ей эмоциональный всплеск, но теперь это больше не работает; сейчас она вообще ничего не чувствует, в том числе не испытывает предвкушения перед боулингом.</li><li>—</li></ol>
+<p>### 27 сентября 2026</p>
+<p>Встреча в боулинге состоялась. Оба были сильно пьяны; день прошёл очень весело и без какой-либо скованности. После этого они долго гуляли по городу, и он катал её в тележке из магазина. Он называет этот день лучшим за последний год.</p>
+<ol><li>В состоянии опьянения он в шутку написал ей «го встречаться», она ответила «го» — оба в тот момент были нетрезвы.</li><li>П████ э████ о█ г██████, ч██ е██ «п████-в███████████» у██████████: о██ е██ о████ н███████ к██ ч██████, и о█ н███████, ч██ м████ н███ ч███-т█ р█████████.</li></ol>
+<p>### 29 сентября 2026</p>
+<p>С█████ ██ г██████, ч██ п█-н█████████ в н██ в████████ — и█████████ э██████, е██ т█████т о█ в███████. О█ х████ п█████ п██████ и п███████████ э██ с████████, а н█ а████████████ е██. Р████ о█ н██████ п██████████ «в██████████й в████████████».</p></section></div>
+    <div id="d20"></div>
+    <div id="d21"></div>
+    <div id="d22"></div>
+    <div id="d27"></div>
+    <div id="d29"></div>
+
+    <footer>Сгенерировано из исходного Markdown-файла без внешних библиотек. Страница работает автономно и адаптируется под мобильные экраны.</footer>
+  </main>
+</div>
+</body>
+</html>
